@@ -1,0 +1,25 @@
+{
+  "name": "spredfast_api",
+  "version": "1.0.0",
+  "description": "A wrapper library for the Spredfast RESTful API",
+  "main": "service.js",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "dependencies": {
+    "express": "~4.13.3",
+    "jasmine": "~2.3.0",
+    "nock": "~2.10.0",
+    "unirest": "~0.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshualoehr/spredfast-api-wrapper.git"
+  },
+  "author": "Josh Loehr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joshualoehr/spredfast-api-wrapper/issues"
+  },
+  "homepage": "https://github.com/joshualoehr/spredfast-api-wrapper#readme"
+}
