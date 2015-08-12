@@ -1,8 +1,7 @@
 var spredfast = require('./lib/spredfast.js');
 
 var oauth = spredfast.OAuth.Existing({
-    //user: 'admin@devbox.spredfast.com',
-    user: 'p.fry.express@gmail.com',
+    user: 'admin@devbox.spredfast.com',
     clientId: 'e65a9f746vt63vqxnu5r87c7',
     clientSecret: 'sSJAgVj9ZQ',
     redirectUri: 'http://localhost:3000/callback'
