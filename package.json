@@ -9,6 +9,7 @@
   "dependencies": {
     "express": "~4.13.3",
     "jasmine": "~2.3.0",
+    "karma": "~0.13.9",
     "nock": "~2.10.0",
     "unirest": "~0.4.2"
   },

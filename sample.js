@@ -9,16 +9,15 @@ var oauth = spredfast.OAuth.Existing({
 
 if (oauth.accessToken) {
     var conn = new spredfast.Connection(oauth);
-    conn.setCompany('<company_name>');
-    conn.setInitiative('<initiative_name>');
-    conn.setAccount('<account_name>');
+    //conn.setCompany('<company_name>');
+    //conn.setInitiative('<initiative_name>');
+    //conn.setAccount('<account_name>');
 } else {
     console.log('Authorization needed to continue.');
 }
 
 var app = require('express')();
 app.get('/', function(req, res) {
-    console.log(oauth);
     res.redirect(oauth.authorize());
 });
 app.get('/callback', function(req, res) {
