@@ -1,0 +1,9 @@
+{
+    "clientId": "e65a9f746vt63vqxnu5r87c7",
+    "clientSecret": "sSJAgVj9ZQ",
+    "redirectUri": "http://localhost:3000/callback",
+    "users": {
+        "admin": "admin@devbox.spredfast.com",
+        "hubert": "h.farnsworth.express@gmail.com"
+    }
+}

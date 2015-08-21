@@ -33,7 +33,7 @@ var getCurrentUser = nock(baseUri, header).get('/v1/me')
     }
 });
 
-var endpoint = '/Development/v1/company/2/initiative';
+var endpoint = '/development/v1/company/2/initiative';
 var getInitiatives = nock(baseUri, header).get(endpoint)
 .query(true)
 .times(num).reply(200, {
@@ -62,7 +62,7 @@ var getInitiatives = nock(baseUri, header).get(endpoint)
     }
 });
 
-endpoint = '/Development/v1/company/2/initiative/2/accountset';
+endpoint = '/development/v1/company/2/initiative/2/accountset';
 var getAccounts = nock(baseUri, header).get(endpoint)
 .query(true)
 .times(num).reply(200, {
@@ -98,6 +98,54 @@ var getAccounts = nock(baseUri, header).get(endpoint)
         },
         "pagination": {
             "totalItems": 1
+        }
+    }
+});
+
+endpoint = '/development/v1/company/2/initiative/2/message';
+var publishMessage = nock(baseUri, header)
+.post(endpoint, {
+    "sfEntityType": "Message",
+    "service": "TWITTER",
+    "targetAccountIds": ["42"],
+    "content": { "sfEntityType": "Status", "text": "Here is my tweet text" },
+    "callbacks": [
+        "http://foodomain.com/notifyhere",
+        "http://goodomain.com/notifyheretoo?somekey=somestate"
+    ]
+}).times(num).reply(200, {
+    status: 200,
+    body: {
+        "data": {
+            "sfEntityType": "Message",
+            "id": "X",
+            "content": {
+                "sfEntityType": "Status",
+                "text": "Here is my tweet text"
+            },
+            "labels": [
+                "foo",
+                "bar"
+            ],
+            "service": "TWITTER",
+            "targetAccountIds": [
+                "42"
+            ],
+            "status": "PENDING",
+            "publicationResults": [
+                {
+                    "sfEntityType": "PublicationResult",
+                    "accountId": "42",
+                    "status": "PENDING"
+                }
+            ],
+            "callbacks": [
+                "http://foodomain.com/notifyhere",
+                "http://goodomain.com/notifyheretoo?somekey=somestate"
+            ]
+        },
+        "status": {
+            "succeeded": true
         }
     }
 });
