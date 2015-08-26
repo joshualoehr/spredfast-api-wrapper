@@ -1,0 +1,16 @@
+{
+    "name": "Spredfast API Wrapper",
+    "description": "A wrapper library for the Spredfast Conversations API",
+    "version": "0.1.0",
+    "url": "https://github.com/joshualoehr/spredfast-api-wrapper",
+    "options": {
+        "linkNatives": "true",
+        "paths": [
+            "./lib/"
+        ],
+        "exclude": "./lib/config, node_modules, spec",
+        "tabtospace": 4
+    },
+    "helpers": ["docs/helpers.js"],
+    "outdir": "./docs/api"
+}

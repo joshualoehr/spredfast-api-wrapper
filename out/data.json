@@ -1,0 +1,1107 @@
+{
+    "project": {
+        "name": "Spredfast API Wrapper",
+        "description": "A wrapper library for the Spredfast Conversations API",
+        "version": "0.1.0",
+        "url": "https://github.com/joshualoehr/spredfast-api-wrapper",
+        "helpers": [
+            "docs/helpers.js"
+        ],
+        "outdir": "./docs/api"
+    },
+    "files": {
+        "lib/api/connection.js": {
+            "name": "lib/api/connection.js",
+            "modules": {},
+            "classes": {
+                "Connection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/api/errors.js": {
+            "name": "lib/api/errors.js",
+            "modules": {},
+            "classes": {
+                "OptionError": 1,
+                "ContentError": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/api/message.js": {
+            "name": "lib/api/message.js",
+            "modules": {},
+            "classes": {
+                "Message": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/api/oauth.js": {
+            "name": "lib/api/oauth.js",
+            "modules": {},
+            "classes": {
+                "OAuth": 1
+            },
+            "fors": {
+                "OAuth": 1
+            },
+            "namespaces": {}
+        },
+        "lib/api/util.js": {
+            "name": "lib/api/util.js",
+            "modules": {},
+            "classes": {
+                "Util": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/spredfast.js": {
+            "name": "lib/spredfast.js",
+            "modules": {
+                "Spredfast": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "Spredfast": {
+            "name": "Spredfast",
+            "submodules": {},
+            "elements": {},
+            "classes": {
+                "Connection": 1,
+                "OptionError": 1,
+                "ContentError": 1,
+                "Message": 1,
+                "OAuth": 1,
+                "Util": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "lib/api/util.js",
+            "line": 12,
+            "description": "Provides the base Spredfast API module."
+        }
+    },
+    "classes": {
+        "Connection": {
+            "name": "Connection",
+            "shortname": "Connection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Spredfast",
+            "file": "lib/api/connection.js",
+            "line": 7,
+            "description": "A class containing methods that abstract out common API uses.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "oauth",
+                    "description": "A completed OAuth object, i.e. one with a defined\naccessToken property",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "accessToken",
+                            "description": "The OAuth accessToken unique to the currently\nauthenticated user.",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ],
+            "requires": [
+                "unirest",
+                "util.js"
+            ],
+            "example": [
+                "\n    // Creating a Connection from an OAuth Server authentication flow (using ExpressJS)\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>,\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);",
+                "\n    // Creating a Connection from an existing access token\n    var oauth = {\n        accessToken: <accessToken>\n    };\n    var conn = new spredfast.Connection(oauth);"
+            ],
+            "todo": [
+                "ability to toggle logging"
+            ]
+        },
+        "OptionError": {
+            "name": "OptionError",
+            "shortname": "OptionError",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Spredfast",
+            "file": "lib/api/errors.js",
+            "line": 2,
+            "description": "An error indicating a missing option.",
+            "is_constructor": 1,
+            "extends": "Error"
+        },
+        "ContentError": {
+            "name": "ContentError",
+            "shortname": "ContentError",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Spredfast",
+            "file": "lib/api/errors.js",
+            "line": 17,
+            "description": "An error indicating a provided option, albeit of correct type, has invalid content.\n\nFor example, a function that requires text for a Tweet might throw a ContentError\nif the provided text had more than 140 characters.",
+            "is_constructor": 1,
+            "extends": "Error"
+        },
+        "Message": {
+            "name": "Message",
+            "shortname": "Message",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Spredfast",
+            "file": "lib/api/message.js",
+            "line": 14,
+            "description": "A class representing a Message that may be published by the Conversations API.\n\nValidation Rules:\n<ul>\n<li> Image size can be no larger than 1 GB.\n<li> All supplied accounts must belong to the same service (social network),\nand that service (network) must match the value supplied for the message's\nservice attribute.\n<li> Tweets can be no more than 140 characters long, without links. Twitter links\n(including the pic.twitter.com that is created when you publish a message with\nan image) add 22 characters to the total character count.\n<li> New labels can be created only if the user has sufficient privileges.\nLabels that already exist for the company can be added to messages, but creating\nnew labels requires the caller's UserPrivilege to include canCreateLabels.\n</ul>",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "Options to configure the Message.",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "service",
+                            "description": "The Service type enum representing the medium\nby which this message will be published (e.g. 'TWITTER', 'FACEBOOK', etc.).",
+                            "type": "String"
+                        },
+                        {
+                            "name": "accounts",
+                            "description": "An array of the account ID's corresponding to\nthe accounts which will publish this Message. Each of the listed accounts must\nbe of the same Service type as the Message.",
+                            "type": "Number[]"
+                        },
+                        {
+                            "name": "content",
+                            "description": "An object containing the content that will be\npublished by this message.",
+                            "type": "Object",
+                            "props": [
+                                {
+                                    "name": "sfEntityType",
+                                    "description": "The Spredfast entity type of the\ncontent. Must be either 'Status' or 'ImageShare'.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "text",
+                                    "description": "The content's text, required if of type 'Status'.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "caption",
+                                    "description": "The content's caption, if of type 'ImageShare'.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "temparoraryImageUrl",
+                                    "description": "Temporary URL to the\noriginal image pointing to where Spredfast stores it prior to publication.\nThis URL is only valid for approximately 30 minutes after message retrieval.\nUse only if Message is of type 'ImageShare'.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "temporaryThumbnailUrl",
+                                    "description": "Temporary URL to the\nthumbnail image pointing to where Spredfast stores it prior to publication.\nThis URL is only valid for use for roughly 30 minutes after message retrieval.\nUse only if Message is of type 'ImageShare'.",
+                                    "type": "String",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "date",
+                            "description": "An ISO-8601-formatted datetime value representing the time\nat which the message should publish. The time must be at least two minutes in\nthe future. If no date is specified, the message will be scheduled to publish\nas soon as possible.",
+                            "type": "Date",
+                            "optional": true
+                        },
+                        {
+                            "name": "callbacks",
+                            "description": "An array of either Functions, Strings,\nor both. <br/>If the element is a String, it should be a URI pointing to an HTTP endpoint\nwhich will accept a POST with a MessageEvent object from the API Server, upon\npublication. <br/>If the element is a Function, this class will automatically\nconfigure an Express server which will call the supplied Function upon notification\nof successful publication from the API Server.",
+                            "type": "Function[]|String[]",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
+            "example": [
+                "\n    var fiveMinsFromNow = new Date();\n    fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);\n\n    var msg = new spredfast.Message({\n        service: 'FACEBOOK',\n        accounts: ['42'],\n        content: {\n            sfEntityType: 'Status',\n            text: 'Here is my status text'\n        },\n        callbacks: [\n            function(req, res) {\n                console.log('callback');\n            },\n            'http://localhost:3002/callback',\n            'http://www.example.com/callback'\n        ],\n        date: fiveMinsFromNow.toISOString()\n    });"
+            ],
+            "throws": {
+                "description": "ReferenceError: If one or more of the required options is undefined.<br/>\nTypeError: If one or more of the supplied options is of incorrect type.<br/>\nOptionError: If one or more of the required options is not supplied.<br/>\nContentError: If one or more of the supplied options is of correct type,\nbut fails other specific criteria outlined in the above Validation Rules.",
+                "type": "ReferenceError|TypeError|OptionError|ContentError"
+            },
+            "todo": [
+                "Image messages"
+            ]
+        },
+        "OAuth": {
+            "name": "OAuth",
+            "shortname": "OAuth",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Spredfast",
+            "file": "lib/api/oauth.js",
+            "line": 143,
+            "description": "Static class containing factory methods for specific OAuth flow types. <br/><br/>\n{{#oauthExample \"lib_api_connection.js.html#l286\" \"getInitiatives\"}}{{/oauthExample}}",
+            "example": [
+                "\n    // Using ExpressJS\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);"
+            ],
+            "static": 1
+        },
+        "Util": {
+            "name": "Util",
+            "shortname": "Util",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Spredfast",
+            "file": "lib/api/util.js",
+            "line": 12,
+            "description": "Class containing utility functions.",
+            "static": 1
+        }
+    },
+    "elements": {},
+    "classitems": [
+        {
+            "file": "lib/api/connection.js",
+            "line": 50,
+            "description": "A reference to 'this' to sidestep scoping issues.",
+            "type": "Object",
+            "access": "private",
+            "tagname": "",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 57,
+            "description": "Stores the provided oauth argument.",
+            "type": "Object",
+            "access": "private",
+            "tagname": "",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 64,
+            "description": "Container object for information regarding the currently authenticated user.",
+            "itemtype": "property",
+            "name": "user",
+            "type": "Object",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 71,
+            "description": "The current user's email address",
+            "itemtype": "property",
+            "name": "user.email",
+            "type": "String",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 79,
+            "description": "The available companies for the current user",
+            "itemtype": "property",
+            "name": "user.companies",
+            "type": "Object[]",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 87,
+            "description": "The current user's 'active' company. Used as a default value where\na company value is required.",
+            "itemtype": "property",
+            "name": "user.activeCompany",
+            "type": "Object",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 96,
+            "description": "The available initiatives for the current user",
+            "itemtype": "property",
+            "name": "user.initiatives",
+            "type": "Object[]",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 104,
+            "description": "The current user's 'active' initiative. Used as a default value where\nan initiative value is required.",
+            "itemtype": "property",
+            "name": "user.activeInitiative",
+            "type": "Object",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 113,
+            "description": "The available accounts for the current user",
+            "itemtype": "property",
+            "name": "user.accounts",
+            "type": "Object[]",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 121,
+            "description": "The current user's 'active' account. Used as a default value where\nan account value is required.",
+            "itemtype": "property",
+            "name": "user.activeAccount",
+            "type": "Object",
+            "default": "null",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 131,
+            "description": "General-purpose method for making requests against the Spredfast API.",
+            "itemtype": "method",
+            "name": "request",
+            "params": [
+                {
+                    "name": "endpoint",
+                    "description": "The API endpoint to be targeted by the HTTP request.",
+                    "type": "String"
+                },
+                {
+                    "name": "method",
+                    "description": "The HTTP method to use for this request. Must be either\n'GET' or 'POST' (case-insensitive).",
+                    "type": "String"
+                },
+                {
+                    "name": "options",
+                    "description": "Additional options for the HTTP request.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "query",
+                            "description": "An optional object whose properties correspond\nto query parameters that will be sent with this request. See\n{{#sourceLink \"lib_api_connection.js.html#l286\" \"getInitiatives\"}}{{/sourceLink}}\nfor a usage example.",
+                            "type": "Object",
+                            "optional": true
+                        },
+                        {
+                            "name": "type",
+                            "description": "An optional Content-Type header value (e.g. 'application/json').",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "send",
+                            "description": "An optional post body object to send with the request (e.g. form data).",
+                            "type": "Object",
+                            "optional": true
+                        }
+                    ]
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function called with an error returned\nby the API server (or null if none exists) and the response body of the API call, or\nnull if the response is undefined.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "throws": {
+                "description": "If the method argument is unsupported.",
+                "type": "Error"
+            },
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.request('v1/me', 'get', function(err, response) {\n        if (err) return console.error(err);\n        // do something with the response object\n    });",
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    var options = {\n        // equivalent: '?key1=value1&key2=value2'\n        query: {\n            key1: value1,\n            key2: value2\n        },\n        type: 'application/json',\n        send: {\n            // Any object here\n        }\n    }\n\n    conn.request('v1/me', 'post', options, function(err, response) {\n        if (err) return console.error(err);\n        // do something with the response object\n    });"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 203,
+            "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.companies\"}}{{/propertyLink}}\nlist with companies available to the\ncurrent user. If at least 1 company is returned, this method will set the\nuser's activeCompany property to the first company in the returned list.\nAdditionally sets the user's email address.",
+            "itemtype": "method",
+            "name": "getCompanies",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an array of company objects.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        companies.forEach(function(company, i, arr) {\n            console.log(Object.keys(company)); // [sfEntityType, id, name, environment]\n        });\n    });"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 248,
+            "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.initiatives\"}}{{/propertyLink}}\nlist with initiatives available to the\ncurrent user. If at least 1 initiative is returned, this method will set the\nuser's activeInitiative property to the first initiative in the returned list.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.\n\nIf no activeCompany is set for the current user, calling this method\nwill result in the user's initiatives list being set to an empty array,\nwhich will get passed to the callback function if one is provided. The user's\nactiveInitiative will be set to null.",
+            "itemtype": "method",
+            "name": "getInitiatives",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "Additional options for the HTTP request.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "pageSize",
+                            "description": "The number of initiatives the server will\nreturn per page. Must be between 0 and 100 (exclusive), defaults to 20.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "pageNumber",
+                            "description": "Zero based index of the page of values\nto return. Must be >= 0, defaults to 0.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "nameFilter",
+                            "description": "Case-insensitive search within the\ninitiative name for the provided string. If not provided, all initiatives\nare returned.",
+                            "type": "String",
+                            "optional": true
+                        }
+                    ]
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an array of initiative objects.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Will set a default user.activeCompany if possible\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        conn.getInitiatives(function(err, initiatives) {\n            if (err) return console.error(err);\n\n            initiatives.forEach(function(initiative, i, arr) {\n                console.log(Object.keys(initiative)); // [sfEntityType, id, name, description]\n            });\n        });\n    });"
+            ],
+            "todo": [
+                "support pagination"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 333,
+            "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.accounts\"}}{{/propertyLink}}\nlist with accounts available to the\ncurrent user. If at least 1 account is returned, this method will set the\nuser's activeAccount property to the first account in the returned list.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.\n\nIf no activeCompany or activeInitiative is set for the current user,\ncalling this method will result in the user's accounts list being set to\nan empty array, which will get passed to the callback function if one is\nprovided. The user's activeAccount will be set to null.",
+            "itemtype": "method",
+            "name": "getAccounts",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "Additional options for the HTTP request.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "pageSize",
+                            "description": "The number of accounts the server will\nreturn per page. Must be between 0 and 100 (exclusive), defaults to 20.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "pageNumber",
+                            "description": "Zero based index of the page of values\nto return. Must be >= 0, defaults to 0.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "services",
+                            "description": "Multi-valued list of possible Social\nNetwork Service enums (i.e. one of 'FACEBOOK', 'TWITTER', or 'LINKEDIN').",
+                            "type": "String",
+                            "optional": true
+                        }
+                    ]
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an array of account objects.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Will set a default user.activeCompany if possible\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        // Will set a default user.activeInitiative if possible\n        conn.getInitiatives(function(err, initiatives) {\n            if (err) return console.error(err);\n\n            conn.getAccounts(function(err, accounts) {\n                if (err) return console.error(err);\n\n                accounts.forEach(function(account, i, arr) {\n                    console.log(Object.keys(account)); // [sfEntityType, id, name, service, accountType]\n                });\n            });\n        });\n    });"
+            ],
+            "todo": [
+                "support pagination"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 429,
+            "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeCompany\" \"activeCompany\"}}{{/propertyLink}}\nfor the current user. If the list of available\ncompanies is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeCompany if it exists in the list.\n\nUpon successfully setting the activeCompany, the user's activeInitiative\nand activeAccount, as well as their respective lists, are reset to null.",
+            "itemtype": "method",
+            "name": "setCompany",
+            "params": [
+                {
+                    "name": "companyName",
+                    "description": "The name of the company to set as active.",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a boolean representing if the\nactiveCompany was successfully set.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        conn.setCompany('Planet Express', function(found) {\n            if (!found) {\n                return console.error(new Error('Company not found'));\n            } else {\n                // do something\n            }\n        });\n    });"
+            ],
+            "todo": [
+                "allow setting company by other parameters",
+                "such as ID"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 479,
+            "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeInitiative\" \"activeInitiative\"}}{{/propertyLink}}\nfor the current user. If the list of available\ninitiatives is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeInitiative if it exists in the list.\n\nUpon successfully setting the activeInitiative, the user's activeAccount\nand list of available accounts are reset to null.",
+            "itemtype": "method",
+            "name": "setInitiative",
+            "params": [
+                {
+                    "name": "initiativeName",
+                    "description": "The name of the initiative to set as active.",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a boolean representing if the\nactiveInitiative was successfully set.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Assuming conn.user.companies is already initialized\n    conn.getInitiatives(function(err, initiatives) {\n        if (err) return console.error(err);\n\n        conn.setInitiative('Marketing', function(found) {\n            if (!found) {\n                return console.error(new Error('Initiative not found'));\n            } else {\n                // do something\n            }\n        });\n    });"
+            ],
+            "todo": [
+                "allow setting initiative by other parameters",
+                "such as ID"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 525,
+            "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeAccount\" \"activeAccount\"}}{{/propertyLink}}\nfor the current user. If the list of available\naccounts is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeAccount if it exists in the list.",
+            "itemtype": "method",
+            "name": "setAccount",
+            "params": [
+                {
+                    "name": "accountName",
+                    "description": "The name of the account to set as active.",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a boolean representing if the\nactiveAccount was successfully set.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Assuming conn.user.companies and conn.user.initiatives\n    // are already initialized\n    conn.getAccounts(function(err, accounts) {\n        if (err) return console.error(err);\n\n        conn.setAccount('My Twitter Account', function(found) {\n            if (!found) {\n                return console.error(new Error('Account not found'));\n            } else {\n                // do something\n            }\n        });\n    });"
+            ],
+            "todo": [
+                "allow setting account by other parameters",
+                "such as ID"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 562,
+            "description": "Method to publish a message via the Conversations API. Requires the current\nuser to have a defined\n{{#propertyLink \"Connection\" \"user.activeCompany\" \"activeCompany\"}}{{/propertyLink}}\nand\n{{#propertyLink \"Connection\" \"user.activeInitiative\" \"activeInitiative\"}}{{/propertyLink}}\nwith which to publish.\n\nNote that the callback function provided here is called when the method is\ndone communicating the publication request to the API server, NOT when\nthe message is actually published\n(see {{#crossLink \"Message\"}}Message.callbacks{{/crossLink}}).",
+            "itemtype": "method",
+            "name": "publish",
+            "params": [
+                {
+                    "name": "msg",
+                    "description": "The {{#crossLink \"Message\"}}{{/crossLink}} object to be published.",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "The optional callback function to be called\nafter the publish action has been sent to the API server. The callback is\npassed any existing error (or null if none exists), and the body of the\nHTTP response, respectively.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "throws": {
+                "description": "If the message's specified accounts are of\nincorrect Service type to publish the message.",
+                "type": "Error"
+            },
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    // initialize the user's company, initiative, and accounts\n\n    var msg = new spredfast.Message({\n        service: 'FACEBOOK',\n        accounts: ['42'],\n        content: {\n            sfEntityType: 'Status',\n            text: 'Here is my status text'\n        },\n        callbacks: [\n            function(req, res) {\n                console.log('callback');\n            }\n        ]\n    });\n\n    conn.publish(msg, function(err, res) {\n        if (err) return console.error(err);\n    });"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/message.js",
+            "line": 105,
+            "description": "Generates the raw JSON to send to the API server.",
+            "itemtype": "method",
+            "name": "build",
+            "return": {
+                "description": "The JSON of this Message object.",
+                "type": "String"
+            },
+            "class": "Message"
+        },
+        {
+            "file": "lib/api/message.js",
+            "line": 129,
+            "description": "Custom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
+            "type": "Function",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options object to be validated."
+                }
+            ],
+            "return": {
+                "description": "Any error that arises as a result\nof invalid options, null otherwise.",
+                "type": "Error|null"
+            },
+            "class": "Message"
+        },
+        {
+            "file": "lib/api/message.js",
+            "line": 181,
+            "description": "Dynamically sets up an ExpressJS server with a map of callback functions that\nwill be called if and when the Spredfast API server sends an HTTP request\nto this callback server with a valid function ID.",
+            "itemtype": "method",
+            "name": "setupCallback",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "Either a String URI pointing to a separate\ncallback endpoint, or a function to be called upon appropriate notification from\nthe Spredfast API.",
+                    "type": "Function|String"
+                }
+            ],
+            "return": {
+                "description": "The URI that the Spredfast API should notify to execute the callback function.",
+                "type": "String"
+            },
+            "class": "Message"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 6,
+            "description": "Builds the proper authorization URL based on which flow is being used.",
+            "type": "Function",
+            "params": [
+                {
+                    "name": "oauth",
+                    "description": "The partially completed OAuth object.",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Redirect URL for user authorization step of the OAuth flow.",
+                "type": "String"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 27,
+            "description": "A wrapper object for all OAuth information. Contains functions for authorizing\nand retrieving access tokens.",
+            "type": "Object",
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 34,
+            "description": "Initialization function. Sets all properties to null.",
+            "itemtype": "method",
+            "name": "init",
+            "type": "Function",
+            "access": "private",
+            "tagname": "",
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 56,
+            "description": "Determines and executes the appropriate authorization steps based on the\nthe type of OAuth flow. Currently, 'Server' is the only functioning type.\n'Password' and 'Application' flow types are WIP.\n\nFor 'Server' flow types, this function returns a URL to which the user\nshould be redirected. Upon successful authorization, the user will be\nredirected to the redirectUri specified in the creation of this OAuth flow.",
+            "itemtype": "method",
+            "name": "authorize",
+            "return": {
+                "description": "A redirect URL to Spredfast's authorization page.",
+                "type": "String"
+            },
+            "todo": [
+                "get Password and Application authentications working",
+                "if supported"
+            ],
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 100,
+            "description": "Uses the authorization code provided by the API to receive an access token.\nUpon retrieval, saves the OAuth object by writing to a JSON file.",
+            "itemtype": "method",
+            "name": "getAccessToken",
+            "params": [
+                {
+                    "name": "code",
+                    "description": "Authorization code, provided by Spredfast's Server as\na result of user authorization (see {{#crossLink \"OAuth/authorize\"}}{{/crossLink}})",
+                    "type": "String"
+                },
+                {
+                    "name": "path",
+                    "description": "The file path pointing to the file where this method\nwill write the completed OAuth object for future retrieval. Defaults to\n`lib/config/oauth.json`.",
+                    "type": "String",
+                    "optional": true
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerror (or null if none exists), and the completed OAuth object, respectively.",
+                    "type": "Function"
+                }
+            ],
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 174,
+            "description": "The required options for the specific OAuth flow type, all of which require 'user'.",
+            "type": "String[]",
+            "access": "private",
+            "tagname": "",
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 193,
+            "description": "The 'Server' OAuth flow type. Requires a username, clientId, clientSecret,\nand redirectUri.",
+            "itemtype": "method",
+            "name": "Server",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "Configuration options for initializing the OAuth flow.",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "user",
+                            "description": "The user's email used to login to Conversations.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "clientId",
+                            "description": "Your application's clientID (provided by Spredfast).",
+                            "type": "String"
+                        },
+                        {
+                            "name": "clientSecret",
+                            "description": "Your application's clientSecret (provided by Spredfast).",
+                            "type": "String"
+                        },
+                        {
+                            "name": "redirectUri",
+                            "description": "The URI to which Spredfast's API will\nredirect the user after authorization.",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "A partially initialized OAuth object.",
+                "type": "Object"
+            },
+            "throws": {
+                "description": "If one or more of the required options is not supplied.",
+                "type": "OptionError"
+            },
+            "example": [
+                "\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>\n       redirectUri: 'http://localhost:3000/callback'\n    });"
+            ],
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/oauth.js",
+            "line": 241,
+            "description": "Method to retrieve an existing OAuth object that has been saved to a JSON file.\nIf the OAuth object cannot be retrieved, this method will instead initialize a\nnew OAuth flow from the provided alternative method.\n\nOAuth objects are stored and retrieved using the options.user (user email)\nproperty as a unique key.\n\nNote that while this method only requires a 'user' option be provided, if the\nalternative OAuth method is called it will still require its usual required\noptions.",
+            "itemtype": "method",
+            "name": "Existing",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "Configuration options for initializing the OAuth flow.",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "user",
+                            "description": "The user's email used to login to Conversations.\nredirect the user after authorization.",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "A completed OAuth object if found, otherwise a partially initialized OAuth object.",
+                "type": "Object"
+            },
+            "throws": {
+                "description": "If one or more of the required options is not supplied.",
+                "type": "OptionError"
+            },
+            "example": [
+                "\n    var options = {\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>\n        redirectUri: 'http://localhost:3000/callback'\n    };\n    var oauth = spredfast.OAuth.Existing(options, spredfast.OAuth.Server);"
+            ],
+            "todo": [
+                "consider a better (more secure?) way to load existing OAuth info",
+                "ensure that token is still valid",
+                "refresh if not"
+            ],
+            "class": "OAuth"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 20,
+            "description": "Validates an options object by checking for required properties. If an\noptional validation function is provided, this method will check against\nthat as well.",
+            "itemtype": "method",
+            "name": "validateOptions",
+            "static": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options object to be validated.",
+                    "type": "Object"
+                },
+                {
+                    "name": "required",
+                    "description": "A list of required property names.",
+                    "type": "String[]"
+                },
+                {
+                    "name": "customValidate",
+                    "description": "An optional, additional validation function\nto check options against further criteria. Invoked with the options object.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "An OptionError if one or more of the required options are missing,\nor the result of calling customValidate with the options object, otherwise\nnull if no custom validation function is provided.",
+                "type": "Error|null"
+            },
+            "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 48,
+            "description": "Checks the type of a variable against a list of accepted types, and throws\nan error if the type is not acceptable.",
+            "itemtype": "method",
+            "name": "checkType",
+            "static": 1,
+            "params": [
+                {
+                    "name": "foo",
+                    "description": "The variable whose type will be checked.",
+                    "type": "Any"
+                },
+                {
+                    "name": "name",
+                    "description": "The semantic name of the variable (used for error\nmessage construction).",
+                    "type": "String"
+                },
+                {
+                    "name": "expectedTypes",
+                    "description": "A String consisting of acceptable types, delimited\nby double bars ('||').",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "An error if the variable is not of correct type, null otherwise.",
+                "type": "Error|null"
+            },
+            "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 80,
+            "description": "A slightly more robust way of determining the type of a variable, which\nwill also specify if the variable is an array, as well as the types of the\narray's elements.",
+            "itemtype": "method",
+            "name": "getType",
+            "static": 1,
+            "params": [
+                {
+                    "name": "foo",
+                    "description": "The variable whose type will be determined."
+                }
+            ],
+            "return": {
+                "description": "The variable's type.",
+                "type": "String"
+            },
+            "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 108,
+            "description": "This method is intended to set a property on an object, only if the value\nthat property is being set to is contained on a different object in a seperate list. Additionally,\nif that list is uninitialized (i.e. null or undefined __not__ merely empty),\nthen this method will attempt to initialize it using a supplied function.\nWhen finished, executes the callback function with a boolean representing\nif the value was set successfully.",
+            "itemtype": "method",
+            "name": "setIfInitializedAndFound",
+            "static": 1,
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object whose property will be set.",
+                    "type": "Object"
+                },
+                {
+                    "name": "prop",
+                    "description": "The name of the property being set on obj.",
+                    "type": "String"
+                },
+                {
+                    "name": "value",
+                    "description": "The value prop is being set to.",
+                    "type": "Any"
+                },
+                {
+                    "name": "list",
+                    "description": "The list of objects, one of whose properties must equal value.",
+                    "type": "Any[]"
+                },
+                {
+                    "name": "matchProp",
+                    "description": "The name of the property on the list's objects being compared to value.",
+                    "type": "String"
+                },
+                {
+                    "name": "init",
+                    "description": "The initialization function for the list, __must__\nreturn a defined list in a Node-style callback.",
+                    "type": "Function"
+                },
+                {
+                    "name": "callback",
+                    "description": "The optional callback function to be called with\na boolean representing whether the property was successfuly set.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "throws": {
+                "description": "If the initialization function fails to return a defined list,\nor passes an error of its own.",
+                "type": "Error"
+            },
+            "example": [
+                "\n    var obj = { property: 'before' },\n        prop = 'property',\n        value = 'after',\n        list = null,\n        matchProp = 'name';\n    function initFn (callback) {\n        list = [\n            { name: 'before', other: 'someValue' },\n            { name: 'during', other: 'someOtherValue' }\n        ];\n        callback(null, list);\n    }\n\n    util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, function(found) {\n        console.log(found); // false\n        console.log(obj); // { property: 'before' }\n    });\n\n    console.log(list !== null); // true\n\n    list.push({ name: 'after', other: 'yetAnotherValue' });\n\n    util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, function(found) {\n        console.log(found); // true\n        console.log(obj); // { property: 'after' }\n    });"
+            ],
+            "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 186,
+            "description": "Writes the result of the OAuth authorization flow to a JSON file.",
+            "itemtype": "method",
+            "name": "writeOAuthCreds",
+            "static": 1,
+            "params": [
+                {
+                    "name": "oauth",
+                    "description": "The completed OAuth object.",
+                    "type": "Object"
+                },
+                {
+                    "name": "path",
+                    "description": "The file path to the JSON file in which the OAuth\nobject should be written. Defaults to `lib/config/config.json`.",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 214,
+            "description": "Reads saved OAuth info from a JSON file, and returns the OAuth object\nwhich corresponds to the given user.",
+            "itemtype": "method",
+            "name": "readOAuthCreds",
+            "static": 1,
+            "params": [
+                {
+                    "name": "user",
+                    "description": "The email address of the user corresponding to the\nOAuth object to be retrieved.",
+                    "type": "String"
+                },
+                {
+                    "name": "path",
+                    "description": "The file path to the JSON file from which the OAuth\nobject should be read. Defaults to `lib/config/config.json`.",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "The completed OAuth object.",
+                "type": "Object"
+            },
+            "class": "Util"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "Missing item type\nA reference to 'this' to sidestep scoping issues.",
+            "line": " lib/api/connection.js:50"
+        },
+        {
+            "message": "Missing item type\nStores the provided oauth argument.",
+            "line": " lib/api/connection.js:57"
+        },
+        {
+            "message": "Missing item type\nCustom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
+            "line": " lib/api/message.js:129"
+        },
+        {
+            "message": "Missing item type\nBuilds the proper authorization URL based on which flow is being used.",
+            "line": " lib/api/oauth.js:6"
+        },
+        {
+            "message": "Missing item type\nA wrapper object for all OAuth information. Contains functions for authorizing\nand retrieving access tokens.",
+            "line": " lib/api/oauth.js:27"
+        },
+        {
+            "message": "Missing item type\nThe required options for the specific OAuth flow type, all of which require 'user'.",
+            "line": " lib/api/oauth.js:174"
+        }
+    ]
+}

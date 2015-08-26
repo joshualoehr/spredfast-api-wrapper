@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Message - Spredfast API Wrapper</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="Spredfast API Wrapper" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.1.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/Connection.html">Connection</a></li>
+                                <li><a href="../classes/ContentError.html">ContentError</a></li>
+                                <li><a href="../classes/Message.html">Message</a></li>
+                                <li><a href="../classes/OAuth.html">OAuth</a></li>
+                                <li><a href="../classes/OptionError.html">OptionError</a></li>
+                                <li><a href="../classes/Util.html">Util</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                                <li><a href="../modules/Spredfast.html">Spredfast</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1>Message Class</h1>
+<div class="box meta">
+
+
+        <div class="foundat">
+            Defined in: <a href="../files/lib_api_message.js.html#l14"><code>lib&#x2F;api&#x2F;message.js:14</code></a>
+        </div>
+
+            Module: <a href="../modules/Spredfast.html">Spredfast</a>
+
+</div>
+
+
+<div class="box intro">
+    <p>A class representing a Message that may be published by the Conversations API.</p>
+<p>Validation Rules:</p>
+<ul>
+<li> Image size can be no larger than 1 GB.
+<li> All supplied accounts must belong to the same service (social network),
+and that service (network) must match the value supplied for the message's
+service attribute.
+<li> Tweets can be no more than 140 characters long, without links. Twitter links
+(including the pic.twitter.com that is created when you publish a message with
+an image) add 22 characters to the total character count.
+<li> New labels can be created only if the user has sufficient privileges.
+Labels that already exist for the company can be added to messages, but creating
+new labels requires the caller's UserPrivilege to include canCreateLabels.
+</ul>
+</div>
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+<div id="method_Message" class="method item">
+    <h3 class="name"><code>Message</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>options</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/lib_api_message.js.html#l14"><code>lib&#x2F;api&#x2F;message.js:14</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">options</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+
+
+                    <div class="param-description">
+                        <p>Options to configure the Message.</p>
+
+                    </div>
+
+                        <ul class="params-list">
+                            <li class="param">
+                                    <code class="param-name">service</code>
+                                    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+
+                                <div class="param-description">
+                                    <p>The Service type enum representing the medium
+by which this message will be published (e.g. 'TWITTER', 'FACEBOOK', etc.).</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">accounts</code>
+                                    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number[]</a></span>
+
+                                <div class="param-description">
+                                    <p>An array of the account ID's corresponding to
+the accounts which will publish this Message. Each of the listed accounts must
+be of the same Service type as the Message.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name">content</code>
+                                    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+
+                                <div class="param-description">
+                                    <p>An object containing the content that will be
+published by this message.</p>
+
+                                </div>
+
+                                    <ul class="params-list">
+                                        <li class="param">
+                                                <code class="param-name">sfEntityType</code>
+                                                <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+
+                                            <div class="param-description">
+                                                The Spredfast entity type of the
+content. Must be either 'Status' or 'ImageShare'.
+                                            </div>
+                                        </li>
+                                        <li class="param">
+                                                <code class="param-name optional">[text]</code>
+                                                <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                            <div class="param-description">
+                                                The content's text, required if of type 'Status'.
+                                            </div>
+                                        </li>
+                                        <li class="param">
+                                                <code class="param-name optional">[caption]</code>
+                                                <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                            <div class="param-description">
+                                                The content's caption, if of type 'ImageShare'.
+                                            </div>
+                                        </li>
+                                        <li class="param">
+                                                <code class="param-name optional">[temparoraryImageUrl]</code>
+                                                <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                            <div class="param-description">
+                                                Temporary URL to the
+original image pointing to where Spredfast stores it prior to publication.
+This URL is only valid for approximately 30 minutes after message retrieval.
+Use only if Message is of type 'ImageShare'.
+                                            </div>
+                                        </li>
+                                        <li class="param">
+                                                <code class="param-name optional">[temporaryThumbnailUrl]</code>
+                                                <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                            <div class="param-description">
+                                                Temporary URL to the
+thumbnail image pointing to where Spredfast stores it prior to publication.
+This URL is only valid for use for roughly 30 minutes after message retrieval.
+Use only if Message is of type 'ImageShare'.
+                                            </div>
+                                        </li>
+                                    </ul>
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[date]</code>
+                                    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" class="crosslink external" target="_blank">Date</a></span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>An ISO-8601-formatted datetime value representing the time
+at which the message should publish. The time must be at least two minutes in
+the future. If no date is specified, the message will be scheduled to publish
+as soon as possible.</p>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[callbacks]</code>
+                                    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function[]</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String[]</a></span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <p>An array of either Functions, Strings,
+or both. <br/>If the element is a String, it should be a URI pointing to an HTTP endpoint
+which will accept a POST with a MessageEvent object from the API Server, upon
+publication. <br/>If the element is a Function, this class will automatically
+configure an Express server which will call the supplied Function upon notification
+of successful publication from the API Server.</p>
+
+                                </div>
+
+                            </li>
+                        </ul>
+                </li>
+            </ul>
+        </div>
+
+
+        <div class="throws">
+            <h4>Throws:</h4>
+
+            <div class="throws-description">
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError" class="crosslink external" target="_blank">ReferenceError</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError" class="crosslink external" target="_blank">TypeError</a> | <a href="../classes/OptionError.html" class="crosslink">OptionError</a> | <a href="../classes/ContentError.html" class="crosslink">ContentError</a></span>:
+                    <p>ReferenceError: If one or more of the required options is undefined.<br/>
+TypeError: If one or more of the supplied options is of incorrect type.<br/>
+OptionError: If one or more of the required options is not supplied.<br/>
+ContentError: If one or more of the supplied options is of correct type,
+but fails other specific criteria outlined in the above Validation Rules.</p>
+
+            </div>
+        </div>
+
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <pre class="code prettyprint"><code>var fiveMinsFromNow = new Date();
+fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);
+
+var msg = new spredfast.Message({
+    service: 'FACEBOOK',
+    accounts: ['42'],
+    content: {
+        sfEntityType: 'Status',
+        text: 'Here is my status text'
+    },
+    callbacks: [
+        function(req, res) {
+            console.log('callback');
+        },
+        'http://localhost:3002/callback',
+        'http://www.example.com/callback'
+    ],
+    date: fiveMinsFromNow.toISOString()
+});</code></pre>
+
+            </div>
+        </div>
+</div>
+    </div>
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                            <li class="index-item method">
+                                <a href="#method_build">build</a>
+
+                            </li>
+                            <li class="index-item method private">
+                                <a href="#method_setupCallback">setupCallback</a>
+
+                            </li>
+                    </ul>
+                </div>
+
+
+
+        </div>
+
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+<div id="method_build" class="method item">
+    <h3 class="name"><code>build</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/lib_api_message.js.html#l105"><code>lib&#x2F;api&#x2F;message.js:105</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Generates the raw JSON to send to the API server.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>:
+                    <p>The JSON of this Message object.</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_setupCallback" class="method item private">
+    <h3 class="name"><code>setupCallback</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>callback</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+        <span class="returns-inline">
+            <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+        </span>
+
+
+        <span class="flag private">private</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/lib_api_message.js.html#l181"><code>lib&#x2F;api&#x2F;message.js:181</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Dynamically sets up an ExpressJS server with a map of callback functions that
+will be called if and when the Spredfast API server sends an HTTP request
+to this callback server with a valid function ID.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">callback</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+
+
+                    <div class="param-description">
+                        <p>Either a String URI pointing to a separate
+callback endpoint, or a function to be called upon appropriate notification from
+the Spredfast API.</p>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>:
+                    <p>The URI that the Spredfast API should notify to execute the callback function.</p>
+
+            </div>
+        </div>
+
+
+</div>
+            </div>
+
+
+
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

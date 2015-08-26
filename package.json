@@ -11,7 +11,9 @@
     "jasmine": "~2.3.0",
     "karma": "~0.13.9",
     "nock": "~2.10.0",
-    "unirest": "~0.4.2"
+    "q": "~1.4.1",
+    "unirest": "~0.4.2",
+    "yuidocjs": "~0.9.0"
   },
   "repository": {
     "type": "git",

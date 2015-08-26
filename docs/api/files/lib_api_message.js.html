@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib/api/message.js - Spredfast API Wrapper</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="Spredfast API Wrapper" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.1.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/Connection.html">Connection</a></li>
+                                <li><a href="../classes/ContentError.html">ContentError</a></li>
+                                <li><a href="../classes/Message.html">Message</a></li>
+                                <li><a href="../classes/OAuth.html">OAuth</a></li>
+                                <li><a href="../classes/OptionError.html">OptionError</a></li>
+                                <li><a href="../classes/Util.html">Util</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                                <li><a href="../modules/Spredfast.html">Spredfast</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: lib/api/message.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var app;
+var util = require(&#x27;./util.js&#x27;);
+
+var errors = require(&#x27;./errors.js&#x27;);
+var OptionError = errors.OptionError;
+var ContentError = errors.ContentError;
+
+var services = [&#x27;TWITTER&#x27;, &#x27;FACEBOOK&#x27;, &#x27;LINKEDIN&#x27;];
+var contentTypes = [&#x27;Status&#x27;, &#x27;ImageShare&#x27;];
+
+var required = [&#x27;service&#x27;,&#x27;content&#x27;,&#x27;accounts&#x27;];
+
+
+/**
+* A class representing a Message that may be published by the Conversations API.
+*
+* Validation Rules:
+* &lt;ul&gt;
+* &lt;li&gt; Image size can be no larger than 1 GB.
+* &lt;li&gt; All supplied accounts must belong to the same service (social network),
+* and that service (network) must match the value supplied for the message&#x27;s
+* service attribute.
+* &lt;li&gt; Tweets can be no more than 140 characters long, without links. Twitter links
+* (including the pic.twitter.com that is created when you publish a message with
+* an image) add 22 characters to the total character count.
+* &lt;li&gt; New labels can be created only if the user has sufficient privileges.
+* Labels that already exist for the company can be added to messages, but creating
+* new labels requires the caller&#x27;s UserPrivilege to include canCreateLabels.
+* &lt;/ul&gt;
+*
+* @class Message
+* @constructor
+* @param {Object} options Options to configure the Message.
+* @param {String} options.service The Service type enum representing the medium
+* by which this message will be published (e.g. &#x27;TWITTER&#x27;, &#x27;FACEBOOK&#x27;, etc.).
+* @param {number[]} options.accounts An array of the account ID&#x27;s corresponding to
+* the accounts which will publish this Message. Each of the listed accounts must
+* be of the same Service type as the Message.
+* @param {Object} options.content An object containing the content that will be
+* published by this message.
+* @param {String} options.content.sfEntityType The Spredfast entity type of the
+* content. Must be either &#x27;Status&#x27; or &#x27;ImageShare&#x27;.
+* @param {String} [options.content.text] The content&#x27;s text, required if of type &#x27;Status&#x27;.
+* @param {String} [options.content.caption] The content&#x27;s caption, if of type &#x27;ImageShare&#x27;.
+* @param {String} [options.content.temparoraryImageUrl] Temporary URL to the
+* original image pointing to where Spredfast stores it prior to publication.
+* This URL is only valid for approximately 30 minutes after message retrieval.
+* Use only if Message is of type &#x27;ImageShare&#x27;.
+* @param {String} [options.content.temporaryThumbnailUrl] Temporary URL to the
+* thumbnail image pointing to where Spredfast stores it prior to publication.
+* This URL is only valid for use for roughly 30 minutes after message retrieval.
+* Use only if Message is of type &#x27;ImageShare&#x27;.
+* @param {Date} [options.date] An ISO-8601-formatted datetime value representing the time
+* at which the message should publish. The time must be at least two minutes in
+* the future. If no date is specified, the message will be scheduled to publish
+* as soon as possible.
+* @param {Function[]|String[]} [options.callbacks] An array of either Functions, Strings,
+* or both. &lt;br/&gt;If the element is a String, it should be a URI pointing to an HTTP endpoint
+* which will accept a POST with a MessageEvent object from the API Server, upon
+* publication. &lt;br/&gt;If the element is a Function, this class will automatically
+* configure an Express server which will call the supplied Function upon notification
+* of successful publication from the API Server.
+* @example
+*     var fiveMinsFromNow = new Date();
+*     fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);
+*
+*     var msg = new spredfast.Message({
+*         service: &#x27;FACEBOOK&#x27;,
+*         accounts: [&#x27;42&#x27;],
+*         content: {
+*             sfEntityType: &#x27;Status&#x27;,
+*             text: &#x27;Here is my status text&#x27;
+*         },
+*         callbacks: [
+*             function(req, res) {
+*                 console.log(&#x27;callback&#x27;);
+*             },
+*             &#x27;http://localhost:3002/callback&#x27;,
+*             &#x27;http://www.example.com/callback&#x27;
+*         ],
+*         date: fiveMinsFromNow.toISOString()
+*     });
+* @throws {ReferenceError|TypeError|OptionError|ContentError}
+* ReferenceError: If one or more of the required options is undefined.&lt;br/&gt;
+* TypeError: If one or more of the supplied options is of incorrect type.&lt;br/&gt;
+* OptionError: If one or more of the required options is not supplied.&lt;br/&gt;
+* ContentError: If one or more of the supplied options is of correct type,
+* but fails other specific criteria outlined in the above Validation Rules.
+* @TODO Image messages
+*/
+function Message(options) {
+    if (err = util.validateOptions(options, required, customValidation)) {
+        throw err;
+    }
+
+    var self = this;
+    Object.keys(options).forEach(function(key) {
+        Object.defineProperty(self, key, Object.getOwnPropertyDescriptor(options, key));
+    });
+
+    if (self.callbacks) {
+        self.callbacks = self.callbacks.map(setupCallback);
+    }
+
+    /**
+    * Generates the raw JSON to send to the API server.
+    *
+    * @method build
+    * @return {String} The JSON of this Message object.
+    */
+    this.build = function() {
+        var msgObj = {
+            sfEntityType: &#x27;Message&#x27;,
+            service: self.service,
+            targetAccountIds: self.accounts,
+            content: self.content
+        };
+
+        if (self.date) {
+            msgObj.scheduledPublishDate = self.date;
+        }
+        if (self.callbacks) {
+            msgObj.callbacks = self.callbacks;
+        }
+        return JSON.stringify(msgObj);
+    }
+}
+
+/**
+* Custom validation function for Message options. Will be passed to
+* util.validateOptions as a set of additonal criteria.
+*
+* @type Function
+* @private
+* @param options The options object to be validated.
+* @return {Error|null} Any error that arises as a result
+* of invalid options, null otherwise.
+*/
+var customValidation = function(options) {
+    var errors = [];
+
+    // Validate options.service
+    errors.push(util.checkType(options.service, &#x27;options.service&#x27;, &#x27;string&#x27;));
+    if (services.indexOf(options.service.toUpperCase()) === -1) {
+        errors.push(new ContentError(&#x27;options.service must be one of &#x27; + services.join()));
+    }
+
+    // Validate options.content
+    errors.push(util.checkType(options.content, &#x27;options.content&#x27;, &#x27;object&#x27;));
+    errors.push(util.checkType(options.content.sfEntityType, &#x27;options.content.sfEntityType&#x27;, &#x27;string&#x27;));
+    if (contentTypes.indexOf(options.content.sfEntityType) === -1) {
+        errors.push(new ContentError(&#x27;options.content.sfEntityType must be one of &#x27; + contentTypes.join()));
+    } else if (options.content.sfEntityType === &#x27;Status&#x27;) {
+        errors.push(util.checkType(options.content.text, &#x27;options.content.text&#x27;, &#x27;string&#x27;));
+        if (options.service === &#x27;TWITTER&#x27; &amp;&amp; options.content.text.length &gt; 140) {
+            errors.push(new ContentError(&#x27;Tweet text must be less than 140 characters&#x27;));
+        }
+    }
+
+    // Validate options.accounts
+    errors.push(util.checkType(options.accounts, &#x27;options.accounts&#x27;, &#x27;[string]&#x27;));
+
+    // Validate options.labels
+    if (options.labels) {
+        errors.push(util.checkType(options.labels, &#x27;options.labels&#x27;, &#x27;[string]&#x27;));
+    }
+
+    // Validate options.callbacks
+    if (options.callbacks) {
+        errors.push(util.checkType(options.callbacks,
+            &#x27;options.callbacks&#x27;, &#x27;[string]||[function]||[multi]&#x27;));
+    }
+
+    for (var i = 0; i &lt; errors.length; i++) {
+        if (errors[i]) {
+            return errors[i];
+        }
+    }
+}
+
+/**
+* Dynamically sets up an ExpressJS server with a map of callback functions that
+* will be called if and when the Spredfast API server sends an HTTP request
+* to this callback server with a valid function ID.
+*
+* @method setupCallback
+* @private
+* @param {Function|String} callback Either a String URI pointing to a separate
+* callback endpoint, or a function to be called upon appropriate notification from
+* the Spredfast API.
+* @return {String} The URI that the Spredfast API should notify to execute the callback function.
+*/
+var setupCallback = function(callback) {
+    if (typeof callback === &#x27;string&#x27;) {
+        return callback;
+    }
+    if (!app) {
+        app = require(&#x27;express&#x27;)();
+        app.routeFns = [];
+        app.post(&#x27;/callback&#x27;, function(req, res) {
+            var id = req.query.id;
+            app.routeFns[id](req, res);
+            res.send();
+        });
+        app.listen(3001);
+        console.log(&#x27;Listening on port 3001&#x27;);
+    }
+    var uri = &#x27;http://localhost:3000/callback?id=&#x27; + app.routeFns.length;
+    app.routeFns.push(callback);
+    return uri;
+}
+
+module.exports = Message;
+
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
