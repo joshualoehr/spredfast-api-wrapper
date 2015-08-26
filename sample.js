@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var Q = require('q');
 var spredfast = require('./lib/spredfast.js');
 
 var config = fs.readFileSync(path.join(__dirname, 'lib/config/config.json'), 'utf-8');
@@ -15,39 +16,52 @@ var oauth = spredfast.OAuth.Existing(options, spredfast.OAuth.Server);
 // var oauth = spredfast.OAuth.Server(options);
 
 var doStuff = function(oauth) {
-    var conn = new spredfast.Connection(oauth);
-    conn.getCompanies(function(err, companies) {
-        if (err) return console.error(err);
-        listAvailable('companies', companies);
-        conn.getInitiatives(function(err, initiatives) {
-            if (err) return console.error(err);
-            listAvailable('initiatives', initiatives);
-            conn.setInitiative('Marketing', function(err, found) {
-                if (!found) return console.log('Marketing: not found');
-
-                conn.getAccounts(function(err, accounts) {
-                    if (err) return console.error(err);
-                    listAvailable('accounts', accounts);
-
-                    conn.publish(new spredfast.Message({
-                        service: 'TWITTER',
-                        accounts: ['1'],
-                        content: {
-                            sfEntityType: 'Status',
-                            text: 'Here is my tweet text'
-                        },
-                        callbacks: [
-                            function(req, res) {
-                                console.log('callback');
-                            }
-                        ]
-                    }), function(err, res) {
-                        console.log(res);
-                    });
-                });
-            });
-        });
+    var msg = new spredfast.Message({
+        service: 'FACEBOOK',
+        accounts: ['42'],
+        content: {
+            sfEntityType: 'Status',
+            text: 'Here is my status text'
+        },
+        callbacks: [
+            function(req, res) {
+                console.log('callback');
+            }
+        ]
     });
+
+    var conn = new spredfast.Connection(oauth);
+    Q.ninvoke(conn, 'getCompanies')
+    .then(function(companies) {
+        return Q.ninvoke(conn, 'getInitiatives');
+    })
+    .then(function(initiatives) {
+        listAvailable('initiatives', initiatives);
+
+        var deferred = Q.defer();
+        var initiativeName = 'Catch All';
+        conn.setInitiative(initiativeName, function(err, found) {
+            if (found) {
+                deferred.resolve();
+            } else {
+                deferred.reject(err || new Error(initiativeName + ': initiative not found'));
+            }
+        });
+        return deferred.promise;
+    })
+    .then(function() {
+        return Q.ninvoke(conn, 'getAccounts');
+    })
+    .then(function(accounts) {
+        listAvailable('accounts', accounts);
+        return Q.ninvoke(conn, 'publish', msg);
+    })
+    .then(console.log)
+    .catch(function(err) {
+        console.error(err);
+        process.exit(1);
+    })
+    .fin(process.exit);
 }
 
 var listAvailable = function(name, list) {
@@ -72,7 +86,7 @@ if (authorize) {
         res.redirect(oauth.authorize());
     });
     app.get('/callback', function(req, res) {
-        oauth.getAccessToken(req.query.code, function(oauth) {
+        oauth.getAccessToken(req.query.code, function(err, oauth) {
             doStuff(oauth);
         });
         res.send();
