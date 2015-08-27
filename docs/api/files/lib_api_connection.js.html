@@ -90,7 +90,6 @@ var unirest = require(&#x27;unirest&#x27;);
 var util = require(&#x27;./util.js&#x27;);
 
 var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;];
-var baseUri = &#x27;https://qa2api.spredfast.com/&#x27;;
 
 /**
 * A class containing methods that abstract out common API uses.
@@ -144,10 +143,20 @@ function Connection(oauth) {
 
     /**
     * Stores the provided oauth argument.
+    * @property oauth
     * @type Object
     * @private
     */
     this.oauth = oauth;
+
+    /**
+    * The base URI for the API to be used by this connection. Defaults to the
+    * QA API.
+    *
+    * @property baseUri
+    * @type String
+    */
+    this.baseUri = &#x27;https://qa2api.spredfast.com/&#x27;;
 
     /**
     * Container object for information regarding the currently authenticated user.
@@ -268,12 +277,11 @@ function Connection(oauth) {
 
         method = method.toLowerCase();
         if (supportedMethods.indexOf(method) === -1) {
-            // TODO handle error (unsupported http method)
             throw new Error(&#x27;Unsupported http method&#x27;);
         }
         var unirestFn = Object.getOwnPropertyDescriptor(unirest, method).value;
 
-        var req = unirestFn(baseUri + endpoint);
+        var req = unirestFn(this.baseUri + endpoint);
 
         req.headers({ Authorization: &#x27;Bearer &#x27; + this.oauth.accessToken });
         if (options.query) req.query(options.query);

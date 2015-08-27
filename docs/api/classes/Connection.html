@@ -87,7 +87,7 @@
 
 
         <div class="foundat">
-            Defined in: <a href="../files/lib_api_connection.js.html#l7"><code>lib&#x2F;api&#x2F;connection.js:7</code></a>
+            Defined in: <a href="../files/lib_api_connection.js.html#l6"><code>lib&#x2F;api&#x2F;connection.js:6</code></a>
         </div>
 
             Module: <a href="../modules/Spredfast.html">Spredfast</a>
@@ -123,7 +123,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l7"><code>lib&#x2F;api&#x2F;connection.js:7</code></a>
+        <a href="../files/lib_api_connection.js.html#l6"><code>lib&#x2F;api&#x2F;connection.js:6</code></a>
         </p>
 
 
@@ -261,6 +261,14 @@ var conn = new spredfast.Connection(oauth);</code></pre>
 
                     <ul class="index-list properties">
                             <li class="index-item property">
+                                <a href="#property_baseUri">baseUri</a>
+
+                            </li>
+                            <li class="index-item property private">
+                                <a href="#property_oauth">oauth</a>
+
+                            </li>
+                            <li class="index-item property">
                                 <a href="#property_user">user</a>
 
                             </li>
@@ -325,7 +333,7 @@ var conn = new spredfast.Connection(oauth);</code></pre>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l333"><code>lib&#x2F;api&#x2F;connection.js:333</code></a>
+        <a href="../files/lib_api_connection.js.html#l341"><code>lib&#x2F;api&#x2F;connection.js:341</code></a>
         </p>
 
 
@@ -467,7 +475,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l203"><code>lib&#x2F;api&#x2F;connection.js:203</code></a>
+        <a href="../files/lib_api_connection.js.html#l211"><code>lib&#x2F;api&#x2F;connection.js:211</code></a>
         </p>
 
 
@@ -547,7 +555,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l248"><code>lib&#x2F;api&#x2F;connection.js:248</code></a>
+        <a href="../files/lib_api_connection.js.html#l256"><code>lib&#x2F;api&#x2F;connection.js:256</code></a>
         </p>
 
 
@@ -688,7 +696,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l562"><code>lib&#x2F;api&#x2F;connection.js:562</code></a>
+        <a href="../files/lib_api_connection.js.html#l570"><code>lib&#x2F;api&#x2F;connection.js:570</code></a>
         </p>
 
 
@@ -813,7 +821,7 @@ conn.publish(msg, function(err, res) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l131"><code>lib&#x2F;api&#x2F;connection.js:131</code></a>
+        <a href="../files/lib_api_connection.js.html#l140"><code>lib&#x2F;api&#x2F;connection.js:140</code></a>
         </p>
 
 
@@ -986,7 +994,7 @@ conn.request('v1/me', 'post', options, function(err, response) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l525"><code>lib&#x2F;api&#x2F;connection.js:525</code></a>
+        <a href="../files/lib_api_connection.js.html#l533"><code>lib&#x2F;api&#x2F;connection.js:533</code></a>
         </p>
 
 
@@ -1083,7 +1091,7 @@ conn.getAccounts(function(err, accounts) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l429"><code>lib&#x2F;api&#x2F;connection.js:429</code></a>
+        <a href="../files/lib_api_connection.js.html#l437"><code>lib&#x2F;api&#x2F;connection.js:437</code></a>
         </p>
 
 
@@ -1180,7 +1188,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l479"><code>lib&#x2F;api&#x2F;connection.js:479</code></a>
+        <a href="../files/lib_api_connection.js.html#l487"><code>lib&#x2F;api&#x2F;connection.js:487</code></a>
         </p>
 
 
@@ -1259,6 +1267,58 @@ conn.getInitiatives(function(err, initiatives) {
             <div id="properties" class="api-class-tabpanel">
                 <h2 class="off-left">Properties</h2>
 
+<div id="property_baseUri" class="property item">
+    <h3 class="name"><code>baseUri</code></h3>
+    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/lib_api_connection.js.html#l64"><code>lib&#x2F;api&#x2F;connection.js:64</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The base URI for the API to be used by this connection. Defaults to the
+QA API.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_oauth" class="property item private">
+    <h3 class="name"><code>oauth</code></h3>
+    <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+
+
+        <span class="flag private">private</span>
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/lib_api_connection.js.html#l56"><code>lib&#x2F;api&#x2F;connection.js:56</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Stores the provided oauth argument.</p>
+
+    </div>
+
+
+
+</div>
 <div id="property_user" class="property item">
     <h3 class="name"><code>user</code></h3>
     <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
@@ -1270,7 +1330,7 @@ conn.getInitiatives(function(err, initiatives) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l64"><code>lib&#x2F;api&#x2F;connection.js:64</code></a>
+        <a href="../files/lib_api_connection.js.html#l73"><code>lib&#x2F;api&#x2F;connection.js:73</code></a>
         </p>
 
 
@@ -1295,7 +1355,7 @@ conn.getInitiatives(function(err, initiatives) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l113"><code>lib&#x2F;api&#x2F;connection.js:113</code></a>
+        <a href="../files/lib_api_connection.js.html#l122"><code>lib&#x2F;api&#x2F;connection.js:122</code></a>
         </p>
 
 
@@ -1321,7 +1381,7 @@ conn.getInitiatives(function(err, initiatives) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l121"><code>lib&#x2F;api&#x2F;connection.js:121</code></a>
+        <a href="../files/lib_api_connection.js.html#l130"><code>lib&#x2F;api&#x2F;connection.js:130</code></a>
         </p>
 
 
@@ -1348,7 +1408,7 @@ an account value is required.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l87"><code>lib&#x2F;api&#x2F;connection.js:87</code></a>
+        <a href="../files/lib_api_connection.js.html#l96"><code>lib&#x2F;api&#x2F;connection.js:96</code></a>
         </p>
 
 
@@ -1375,7 +1435,7 @@ a company value is required.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l104"><code>lib&#x2F;api&#x2F;connection.js:104</code></a>
+        <a href="../files/lib_api_connection.js.html#l113"><code>lib&#x2F;api&#x2F;connection.js:113</code></a>
         </p>
 
 
@@ -1402,7 +1462,7 @@ an initiative value is required.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l79"><code>lib&#x2F;api&#x2F;connection.js:79</code></a>
+        <a href="../files/lib_api_connection.js.html#l88"><code>lib&#x2F;api&#x2F;connection.js:88</code></a>
         </p>
 
 
@@ -1428,7 +1488,7 @@ an initiative value is required.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l71"><code>lib&#x2F;api&#x2F;connection.js:71</code></a>
+        <a href="../files/lib_api_connection.js.html#l80"><code>lib&#x2F;api&#x2F;connection.js:80</code></a>
         </p>
 
 
@@ -1454,7 +1514,7 @@ an initiative value is required.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l96"><code>lib&#x2F;api&#x2F;connection.js:96</code></a>
+        <a href="../files/lib_api_connection.js.html#l105"><code>lib&#x2F;api&#x2F;connection.js:105</code></a>
         </p>
 
 

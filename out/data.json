@@ -100,7 +100,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/connection.js",
-            "line": 7,
+            "line": 6,
             "description": "A class containing methods that abstract out common API uses.",
             "is_constructor": 1,
             "params": [
@@ -286,7 +286,7 @@
     "classitems": [
         {
             "file": "lib/api/connection.js",
-            "line": 50,
+            "line": 49,
             "description": "A reference to 'this' to sidestep scoping issues.",
             "type": "Object",
             "access": "private",
@@ -295,8 +295,10 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 57,
+            "line": 56,
             "description": "Stores the provided oauth argument.",
+            "itemtype": "property",
+            "name": "oauth",
             "type": "Object",
             "access": "private",
             "tagname": "",
@@ -305,6 +307,15 @@
         {
             "file": "lib/api/connection.js",
             "line": 64,
+            "description": "The base URI for the API to be used by this connection. Defaults to the\nQA API.",
+            "itemtype": "property",
+            "name": "baseUri",
+            "type": "String",
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 73,
             "description": "Container object for information regarding the currently authenticated user.",
             "itemtype": "property",
             "name": "user",
@@ -313,7 +324,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 71,
+            "line": 80,
             "description": "The current user's email address",
             "itemtype": "property",
             "name": "user.email",
@@ -323,7 +334,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 79,
+            "line": 88,
             "description": "The available companies for the current user",
             "itemtype": "property",
             "name": "user.companies",
@@ -333,7 +344,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 87,
+            "line": 96,
             "description": "The current user's 'active' company. Used as a default value where\na company value is required.",
             "itemtype": "property",
             "name": "user.activeCompany",
@@ -343,7 +354,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 96,
+            "line": 105,
             "description": "The available initiatives for the current user",
             "itemtype": "property",
             "name": "user.initiatives",
@@ -353,7 +364,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 104,
+            "line": 113,
             "description": "The current user's 'active' initiative. Used as a default value where\nan initiative value is required.",
             "itemtype": "property",
             "name": "user.activeInitiative",
@@ -363,7 +374,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 113,
+            "line": 122,
             "description": "The available accounts for the current user",
             "itemtype": "property",
             "name": "user.accounts",
@@ -373,7 +384,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 121,
+            "line": 130,
             "description": "The current user's 'active' account. Used as a default value where\nan account value is required.",
             "itemtype": "property",
             "name": "user.activeAccount",
@@ -383,7 +394,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 131,
+            "line": 140,
             "description": "General-purpose method for making requests against the Spredfast API.",
             "itemtype": "method",
             "name": "request",
@@ -443,7 +454,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 203,
+            "line": 211,
             "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.companies\"}}{{/propertyLink}}\nlist with companies available to the\ncurrent user. If at least 1 company is returned, this method will set the\nuser's activeCompany property to the first company in the returned list.\nAdditionally sets the user's email address.",
             "itemtype": "method",
             "name": "getCompanies",
@@ -462,7 +473,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 248,
+            "line": 256,
             "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.initiatives\"}}{{/propertyLink}}\nlist with initiatives available to the\ncurrent user. If at least 1 initiative is returned, this method will set the\nuser's activeInitiative property to the first initiative in the returned list.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.\n\nIf no activeCompany is set for the current user, calling this method\nwill result in the user's initiatives list being set to an empty array,\nwhich will get passed to the callback function if one is provided. The user's\nactiveInitiative will be set to null.",
             "itemtype": "method",
             "name": "getInitiatives",
@@ -510,7 +521,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 333,
+            "line": 341,
             "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.accounts\"}}{{/propertyLink}}\nlist with accounts available to the\ncurrent user. If at least 1 account is returned, this method will set the\nuser's activeAccount property to the first account in the returned list.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.\n\nIf no activeCompany or activeInitiative is set for the current user,\ncalling this method will result in the user's accounts list being set to\nan empty array, which will get passed to the callback function if one is\nprovided. The user's activeAccount will be set to null.",
             "itemtype": "method",
             "name": "getAccounts",
@@ -558,7 +569,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 429,
+            "line": 437,
             "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeCompany\" \"activeCompany\"}}{{/propertyLink}}\nfor the current user. If the list of available\ncompanies is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeCompany if it exists in the list.\n\nUpon successfully setting the activeCompany, the user's activeInitiative\nand activeAccount, as well as their respective lists, are reset to null.",
             "itemtype": "method",
             "name": "setCompany",
@@ -586,7 +597,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 479,
+            "line": 487,
             "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeInitiative\" \"activeInitiative\"}}{{/propertyLink}}\nfor the current user. If the list of available\ninitiatives is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeInitiative if it exists in the list.\n\nUpon successfully setting the activeInitiative, the user's activeAccount\nand list of available accounts are reset to null.",
             "itemtype": "method",
             "name": "setInitiative",
@@ -614,7 +625,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 525,
+            "line": 533,
             "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeAccount\" \"activeAccount\"}}{{/propertyLink}}\nfor the current user. If the list of available\naccounts is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeAccount if it exists in the list.",
             "itemtype": "method",
             "name": "setAccount",
@@ -642,7 +653,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 562,
+            "line": 570,
             "description": "Method to publish a message via the Conversations API. Requires the current\nuser to have a defined\n{{#propertyLink \"Connection\" \"user.activeCompany\" \"activeCompany\"}}{{/propertyLink}}\nand\n{{#propertyLink \"Connection\" \"user.activeInitiative\" \"activeInitiative\"}}{{/propertyLink}}\nwith which to publish.\n\nNote that the callback function provided here is called when the method is\ndone communicating the publication request to the API server, NOT when\nthe message is actually published\n(see {{#crossLink \"Message\"}}Message.callbacks{{/crossLink}}).",
             "itemtype": "method",
             "name": "publish",
@@ -1081,11 +1092,7 @@
     "warnings": [
         {
             "message": "Missing item type\nA reference to 'this' to sidestep scoping issues.",
-            "line": " lib/api/connection.js:50"
-        },
-        {
-            "message": "Missing item type\nStores the provided oauth argument.",
-            "line": " lib/api/connection.js:57"
+            "line": " lib/api/connection.js:49"
         },
         {
             "message": "Missing item type\nCustom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
