@@ -1,0 +1,48 @@
+{
+    "AccountType": {
+        "USER": "USER",
+        "GROUP": "GROUP",
+        "PAGE": "PAGE",
+        "COMPANY": "COMPANY"
+    },
+
+    "MessageStatus": {
+        "DRAFT": "DRAFT",
+        "PENDING": "PENDING",
+        "AWAITING_APPROVAL": "AWAITING_APPROVAL",
+        "REJECTED": "REJECTED",
+        "PUBLISHED": "PUBLISHED",
+        "ERROR": "ERROR",
+        "DELETED": "DELETED"
+    },
+
+    "PublicationResultStatus": {
+        "PENDING": "PENDING",
+        "PUBLISHED": "PUBLISHED",
+        "ERROR": "ERROR",
+        "DELETED": "DELETED"
+    },
+
+    "ResponseCodes": {
+        "CANNOT_CREATE_NEW_LABELS": 406,
+        "MISSING_FIELD": 406,
+        "NOT_ACCEPTABLE": 406,
+        "NOT_FOUND": 404,
+        "PUBLISH_POST_UPDATE_NOT_ALLOWED": 406,
+        "PUBLISH_IMAGE_BAD_CONTENT_TYPE": 415,
+        "PUBLISH_IMAGE_TOO_LARGE": 406,
+        "PUBLISH_INVALID_ACCOUNT_FOR_SERVICE": 406,
+        "UNAUTHENTICATED": 401,
+        "UNAUTHORIZED": 403,
+        "UNKNOWN_ERROR": 500,
+        "VALIDATION_ERROR": 406,
+    },
+
+    "Service": {
+        "TWITTER": "TWITTER",
+        "FACEBOOK": "FACEBOOK",
+        "LINKEDIN": "LINKEDIN"
+    }
+
+
+}

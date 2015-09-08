@@ -164,3 +164,19 @@ var queries = nock(baseUri, header).get('/v1/queries')
         query: true
     }
 });
+
+endpoint = '/development/v1/company/2/privilege';
+var getUserPrivileges = nock(baseUri, header).get(endpoint)
+.times(num).reply(200, {
+    status: 200,
+    body: {
+        "data": {
+            "sfEntityType" : "UserPrivilege",
+            "canPublish" : true,
+            "canCreateLabels" : true
+        },
+        "status": {
+            "succeeded": true
+        }
+    }
+});

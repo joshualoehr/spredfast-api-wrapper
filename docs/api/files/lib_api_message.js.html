@@ -87,16 +87,25 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 var app;
+var spredfast = require(&#x27;../spredfast.js&#x27;);
 var util = require(&#x27;./util.js&#x27;);
 
 var errors = require(&#x27;./errors.js&#x27;);
 var OptionError = errors.OptionError;
 var ContentError = errors.ContentError;
 
-var services = [&#x27;TWITTER&#x27;, &#x27;FACEBOOK&#x27;, &#x27;LINKEDIN&#x27;];
-var contentTypes = [&#x27;Status&#x27;, &#x27;ImageShare&#x27;];
+var required = [&#x27;company&#x27;,&#x27;initiative&#x27;,&#x27;accounts&#x27;,&#x27;service&#x27;,&#x27;content&#x27;];
 
-var required = [&#x27;service&#x27;,&#x27;content&#x27;,&#x27;accounts&#x27;];
+var services = {
+        FACEBOOK: &#x27;FACEBOOK&#x27;,
+        LINKEDIN: &#x27;LINKEDIN&#x27;,
+        TWITTER: &#x27;TWITTER&#x27;
+    },
+    contentTypes = {
+        STATUS: &#x27;Status&#x27;,
+        IMAGE: &#x27;ImageShare&#x27;,
+        IMAGESHARE: &#x27;ImageShare&#x27;
+    };
 
 
 /**
@@ -121,9 +130,9 @@ var required = [&#x27;service&#x27;,&#x27;content&#x27;,&#x27;accounts&#x27;];
 * @param {Object} options Options to configure the Message.
 * @param {String} options.service The Service type enum representing the medium
 * by which this message will be published (e.g. &#x27;TWITTER&#x27;, &#x27;FACEBOOK&#x27;, etc.).
-* @param {number[]} options.accounts An array of the account ID&#x27;s corresponding to
-* the accounts which will publish this Message. Each of the listed accounts must
-* be of the same Service type as the Message.
+* @param {number[]} options.accounts An array of accounts with which to publish
+* the message. Each of the listed accounts must be of the same Service type as
+* the Message.
 * @param {Object} options.content An object containing the content that will be
 * published by this message.
 * @param {String} options.content.sfEntityType The Spredfast entity type of the
@@ -200,7 +209,9 @@ function Message(options) {
         var msgObj = {
             sfEntityType: &#x27;Message&#x27;,
             service: self.service,
-            targetAccountIds: self.accounts,
+            targetAccountIds: self.accounts.map(function(account) {
+                return account.id.toString();
+            }),
             content: self.content
         };
 
@@ -211,6 +222,21 @@ function Message(options) {
             msgObj.callbacks = self.callbacks;
         }
         return JSON.stringify(msgObj);
+    }
+
+    /**
+    * If the message is of type ImageShare, this function will provide the
+    * raw image data needed to send over HTTP.
+    *
+    * @method imageData
+    * @return {fs.ReadStream} A NodeJS Read Stream object for the image.
+    */
+    this.imageData = function() {
+        if (self.content.sfEntityType === &#x27;Status&#x27;) {
+            return null;
+        }
+        var fs = require(&#x27;fs&#x27;);
+        return fs.createReadStream(self.content.imagePath);
     }
 }
 
@@ -225,45 +251,90 @@ function Message(options) {
 * of invalid options, null otherwise.
 */
 var customValidation = function(options) {
-    var errors = [];
+    var err, errors = [];
 
-    // Validate options.service
-    errors.push(util.checkType(options.service, &#x27;options.service&#x27;, &#x27;string&#x27;));
-    if (services.indexOf(options.service.toUpperCase()) === -1) {
-        errors.push(new ContentError(&#x27;options.service must be one of &#x27; + services.join()));
-    }
+    // Validate Types
 
-    // Validate options.content
-    errors.push(util.checkType(options.content, &#x27;options.content&#x27;, &#x27;object&#x27;));
-    errors.push(util.checkType(options.content.sfEntityType, &#x27;options.content.sfEntityType&#x27;, &#x27;string&#x27;));
-    if (contentTypes.indexOf(options.content.sfEntityType) === -1) {
-        errors.push(new ContentError(&#x27;options.content.sfEntityType must be one of &#x27; + contentTypes.join()));
-    } else if (options.content.sfEntityType === &#x27;Status&#x27;) {
-        errors.push(util.checkType(options.content.text, &#x27;options.content.text&#x27;, &#x27;string&#x27;));
-        if (options.service === &#x27;TWITTER&#x27; &amp;&amp; options.content.text.length &gt; 140) {
-            errors.push(new ContentError(&#x27;Tweet text must be less than 140 characters&#x27;));
+    function validateTypes(obj, typeMap) {
+        var keys = Object.keys(typeMap);
+        for (var i = 0; i &lt; keys.length; i++) {
+            var propName = keys[i];
+            var desc = Object.getOwnPropertyDescriptor(obj, propName);
+            var value = desc ? desc.value : undefined;
+            if (err = util.checkType(value, propName, typeMap[propName])) {
+                return err;
+            }
         }
+        return null;
     }
 
-    // Validate options.accounts
-    errors.push(util.checkType(options.accounts, &#x27;options.accounts&#x27;, &#x27;[string]&#x27;));
+    err = validateTypes(options, {
+        &#x27;company&#x27;: &#x27;object&#x27;,
+        &#x27;initiative&#x27;: &#x27;object&#x27;,
+        &#x27;service&#x27;: &#x27;string&#x27;,
+        &#x27;accounts&#x27;: &#x27;[object]&#x27;,
+        &#x27;content&#x27;: &#x27;object&#x27;,
+        &#x27;labels&#x27;: &#x27;undefined||[string]&#x27;,
+        &#x27;callbacks&#x27;: &#x27;undefined||[string]||[function]||[multi]&#x27;
+    });
+    if (err) return err;
 
-    // Validate options.labels
-    if (options.labels) {
-        errors.push(util.checkType(options.labels, &#x27;options.labels&#x27;, &#x27;[string]&#x27;));
+    err = validateTypes(options.content, {
+        &#x27;sfEntityType&#x27;: &#x27;string&#x27;,
+        &#x27;text&#x27;: &#x27;undefined||string&#x27;,
+        &#x27;imagePath&#x27;: &#x27;undefined||string&#x27;,
+        &#x27;caption&#x27;: &#x27;undefined||string&#x27;,
+        &#x27;temporaryImageUrl&#x27;: &#x27;undefined||string&#x27;,
+        &#x27;temporaryThumbnailUrl&#x27;: &#x27;undefined||string&#x27;
+    });
+    if (err) return err;
+
+    // Validate Content
+
+    if (!options.company.id) {
+        return new ContentError(&#x27;options.company must have an id property&#x27;);
     }
 
-    // Validate options.callbacks
-    if (options.callbacks) {
-        errors.push(util.checkType(options.callbacks,
-            &#x27;options.callbacks&#x27;, &#x27;[string]||[function]||[multi]&#x27;));
+    if (!options.company.environment) {
+        return new ContentError(&#x27;options.company must have an environment property&#x27;);
     }
 
-    for (var i = 0; i &lt; errors.length; i++) {
-        if (errors[i]) {
-            return errors[i];
+    if (!options.initiative.id) {
+        return new ContentError(&#x27;options.initiative must have an id property&#x27;);
+    }
+
+    if (!util.validEnum(services, options.service)) {
+        var validServices = &#x27;spredfast.services.[&#x27; + Object.keys(services).join() + &#x27;]&#x27;;
+        return new ContentError(&#x27;options.service must be one of &#x27; + validServices);
+    }
+
+    var invalidAccounts = options.accounts.filter(function(account) {
+        return account.service !== options.service;
+    });
+    if (invalidAccounts.length) {
+        return new ContentError(&#x27;One or more target accounts are of incorrect &#x27;
+            + &#x27;service type to publish to &#x27; + options.service);
+    }
+
+    if (!util.validEnum(contentTypes, options.content.sfEntityType)) {
+        var validContentTypes = &#x27;spredfast.contentTypes.[&#x27; + Object.keys(contentTypes).join() + &#x27;]&#x27;;
+        return new ContentError(&#x27;options.content.sfEntityType must be one of &#x27; + validContentTypes);
+    }
+
+    var isStatus = options.content.sfEntityType === contentTypes.STATUS;
+    var requiredContent = [&#x27;sfEntityType&#x27;, isStatus ? &#x27;text&#x27; : &#x27;imagePath&#x27;];
+    err = util.validateOptions(options.content, requiredContent);
+    if (err) return err;
+
+    if (isStatus) {
+        if (options.service === services.TWITTER &amp;&amp; options.content.text.length &gt; 140) {
+            return new ContentError(&#x27;Tweet text must be less than 140 characters&#x27;);
         }
+    } else if (util.fileSizeInMegaBytes(options.content.imagePath) &gt;= 1000) {
+        return new ContentError(options.content.imagePath + &#x27; must be smaller than 1 GB&#x27;);
     }
+
+    return null;
 }
 
 /**
@@ -277,6 +348,7 @@ var customValidation = function(options) {
 * callback endpoint, or a function to be called upon appropriate notification from
 * the Spredfast API.
 * @return {String} The URI that the Spredfast API should notify to execute the callback function.
+* @TODO Dynamically configure URI
 */
 var setupCallback = function(callback) {
     if (typeof callback === &#x27;string&#x27;) {
@@ -287,17 +359,19 @@ var setupCallback = function(callback) {
         app.routeFns = [];
         app.post(&#x27;/callback&#x27;, function(req, res) {
             var id = req.query.id;
-            app.routeFns[id](req, res);
-            res.send();
+            if (fn = app.routeFns[id]) fn(req, res);
+            res.end();
         });
         app.listen(3001);
         console.log(&#x27;Listening on port 3001&#x27;);
     }
-    var uri = &#x27;http://localhost:3000/callback?id=&#x27; + app.routeFns.length;
+    var uri = &#x27;http://callbacktest1.jloehr.ultrahook.com?id=&#x27; + app.routeFns.length;
     app.routeFns.push(callback);
     return uri;
 }
 
+Message.services = Object.freeze ? Object.freeze(services) : services;
+Message.contentTypes = Object.freeze ? Object.freeze(contentTypes) : contentTypes;
 module.exports = Message;
 
     </pre>

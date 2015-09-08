@@ -115,6 +115,12 @@
                             "type": "String"
                         }
                     ]
+                },
+                {
+                    "name": "log",
+                    "description": "Flag to toggle logging output from this connection. Defaults to false.",
+                    "type": "Boolean",
+                    "optional": true
                 }
             ],
             "requires": [
@@ -124,9 +130,6 @@
             "example": [
                 "\n    // Creating a Connection from an OAuth Server authentication flow (using ExpressJS)\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>,\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);",
                 "\n    // Creating a Connection from an existing access token\n    var oauth = {\n        accessToken: <accessToken>\n    };\n    var conn = new spredfast.Connection(oauth);"
-            ],
-            "todo": [
-                "ability to toggle logging"
             ]
         },
         "OptionError": {
@@ -169,7 +172,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/message.js",
-            "line": 14,
+            "line": 23,
             "description": "A class representing a Message that may be published by the Conversations API.\n\nValidation Rules:\n<ul>\n<li> Image size can be no larger than 1 GB.\n<li> All supplied accounts must belong to the same service (social network),\nand that service (network) must match the value supplied for the message's\nservice attribute.\n<li> Tweets can be no more than 140 characters long, without links. Twitter links\n(including the pic.twitter.com that is created when you publish a message with\nan image) add 22 characters to the total character count.\n<li> New labels can be created only if the user has sufficient privileges.\nLabels that already exist for the company can be added to messages, but creating\nnew labels requires the caller's UserPrivilege to include canCreateLabels.\n</ul>",
             "is_constructor": 1,
             "params": [
@@ -185,7 +188,7 @@
                         },
                         {
                             "name": "accounts",
-                            "description": "An array of the account ID's corresponding to\nthe accounts which will publish this Message. Each of the listed accounts must\nbe of the same Service type as the Message.",
+                            "description": "An array of accounts with which to publish\nthe message. Each of the listed accounts must be of the same Service type as\nthe Message.",
                             "type": "Number[]"
                         },
                         {
@@ -260,7 +263,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/oauth.js",
-            "line": 143,
+            "line": 142,
             "description": "Static class containing factory methods for specific OAuth flow types. <br/><br/>\n{{#oauthExample \"lib_api_connection.js.html#l286\" \"getInitiatives\"}}{{/oauthExample}}",
             "example": [
                 "\n    // Using ExpressJS\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);"
@@ -306,8 +309,8 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 64,
-            "description": "The base URI for the API to be used by this connection. Defaults to the\nQA API.",
+            "line": 67,
+            "description": "The base URI for the API to be used by this connection. Defaults to the\nQA API (for now).",
             "itemtype": "property",
             "name": "baseUri",
             "type": "String",
@@ -315,86 +318,27 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 73,
-            "description": "Container object for information regarding the currently authenticated user.",
+            "line": 76,
+            "description": "Optional web proxy for HTTP requests.",
             "itemtype": "property",
-            "name": "user",
-            "type": "Object",
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 80,
-            "description": "The current user's email address",
-            "itemtype": "property",
-            "name": "user.email",
+            "name": "proxy",
             "type": "String",
             "default": "null",
             "class": "Connection"
         },
         {
             "file": "lib/api/connection.js",
-            "line": 88,
-            "description": "The available companies for the current user",
+            "line": 85,
+            "description": "Property to toggle logging output.",
             "itemtype": "property",
-            "name": "user.companies",
-            "type": "Object[]",
-            "default": "null",
+            "name": "logging",
+            "type": "boolean",
+            "default": "false",
             "class": "Connection"
         },
         {
             "file": "lib/api/connection.js",
-            "line": 96,
-            "description": "The current user's 'active' company. Used as a default value where\na company value is required.",
-            "itemtype": "property",
-            "name": "user.activeCompany",
-            "type": "Object",
-            "default": "null",
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 105,
-            "description": "The available initiatives for the current user",
-            "itemtype": "property",
-            "name": "user.initiatives",
-            "type": "Object[]",
-            "default": "null",
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 113,
-            "description": "The current user's 'active' initiative. Used as a default value where\nan initiative value is required.",
-            "itemtype": "property",
-            "name": "user.activeInitiative",
-            "type": "Object",
-            "default": "null",
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 122,
-            "description": "The available accounts for the current user",
-            "itemtype": "property",
-            "name": "user.accounts",
-            "type": "Object[]",
-            "default": "null",
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 130,
-            "description": "The current user's 'active' account. Used as a default value where\nan account value is required.",
-            "itemtype": "property",
-            "name": "user.activeAccount",
-            "type": "Object",
-            "default": "null",
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 140,
+            "line": 94,
             "description": "General-purpose method for making requests against the Spredfast API.",
             "itemtype": "method",
             "name": "request",
@@ -454,30 +398,53 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 211,
-            "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.companies\"}}{{/propertyLink}}\nlist with companies available to the\ncurrent user. If at least 1 company is returned, this method will set the\nuser's activeCompany property to the first company in the returned list.\nAdditionally sets the user's email address.",
+            "line": 171,
+            "description": "Method to retrieve the email of the currently authenticated user.",
             "itemtype": "method",
-            "name": "getCompanies",
+            "name": "getUserEmail",
             "params": [
                 {
                     "name": "callback",
-                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an array of company objects.",
+                    "description": "The callback function to be called with any\nerror (or null if none exist), and the email of the user.",
                     "type": "Function",
                     "optional": true
                 }
             ],
             "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        companies.forEach(function(company, i, arr) {\n            console.log(Object.keys(company)); // [sfEntityType, id, name, environment]\n        });\n    });"
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getUserEmail(function(err, email) {\n        if (err) return console.error(err);\n\n        console.log(email);\n    });"
             ],
             "class": "Connection"
         },
         {
             "file": "lib/api/connection.js",
-            "line": 256,
-            "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.initiatives\"}}{{/propertyLink}}\nlist with initiatives available to the\ncurrent user. If at least 1 initiative is returned, this method will set the\nuser's activeInitiative property to the first initiative in the returned list.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.\n\nIf no activeCompany is set for the current user, calling this method\nwill result in the user's initiatives list being set to an empty array,\nwhich will get passed to the callback function if one is provided. The user's\nactiveInitiative will be set to null.",
+            "line": 196,
+            "description": "Method to retrieve the available companies for the currently authenticated user.\nThe list of companies is passed to the callback function as a map with\ncompany names as keys and the company entity objects as values.",
+            "itemtype": "method",
+            "name": "getCompanies",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a map of company objects.",
+                    "type": "Function"
+                }
+            ],
+            "example": [
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        for (var key in companies) {\n            console.log(companies[key]);\n        }\n    });"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 232,
+            "description": "Method to retrieve the available initiatives for the currently authenticated user.\nThe list of initiatives is passed to the callback function as a map with\ninitiative names as keys and the initiative entity objects as values.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.",
             "itemtype": "method",
             "name": "getInitiatives",
             "params": [
+                {
+                    "name": "company",
+                    "description": "The company containing the initiatives to be retrieved.",
+                    "type": "Object"
+                },
                 {
                     "name": "options",
                     "description": "Additional options for the HTTP request.",
@@ -506,13 +473,12 @@
                 },
                 {
                     "name": "callback",
-                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an array of initiative objects.",
-                    "type": "Function",
-                    "optional": true
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a map of initiative objects.",
+                    "type": "Function"
                 }
             ],
             "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Will set a default user.activeCompany if possible\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        conn.getInitiatives(function(err, initiatives) {\n            if (err) return console.error(err);\n\n            initiatives.forEach(function(initiative, i, arr) {\n                console.log(Object.keys(initiative)); // [sfEntityType, id, name, description]\n            });\n        });\n    });"
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            if (err) return console.error(err);\n\n            for (var key in initiatives) {\n                console.log(initiatives[key]);\n            }\n        });\n    });"
             ],
             "todo": [
                 "support pagination"
@@ -521,8 +487,8 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 341,
-            "description": "Method to populate the\n{{#propertyLink \"Connection\" \"user.accounts\"}}{{/propertyLink}}\nlist with accounts available to the\ncurrent user. If at least 1 account is returned, this method will set the\nuser's activeAccount property to the first account in the returned list.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.\n\nIf no activeCompany or activeInitiative is set for the current user,\ncalling this method will result in the user's accounts list being set to\nan empty array, which will get passed to the callback function if one is\nprovided. The user's activeAccount will be set to null.",
+            "line": 305,
+            "description": "Method to retrieve the available accounts for the currently authenticated user.\nThe list of accounts is passed to the callback function as a map with\naccount names as keys and the account entity objects as values.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.",
             "itemtype": "method",
             "name": "getAccounts",
             "params": [
@@ -554,13 +520,12 @@
                 },
                 {
                     "name": "callback",
-                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an array of account objects.",
-                    "type": "Function",
-                    "optional": true
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a map of account objects.",
+                    "type": "Function"
                 }
             ],
             "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Will set a default user.activeCompany if possible\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        // Will set a default user.activeInitiative if possible\n        conn.getInitiatives(function(err, initiatives) {\n            if (err) return console.error(err);\n\n            conn.getAccounts(function(err, accounts) {\n                if (err) return console.error(err);\n\n                accounts.forEach(function(account, i, arr) {\n                    console.log(Object.keys(account)); // [sfEntityType, id, name, service, accountType]\n                });\n            });\n        });\n    });"
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            conn.getAccounts(initiatives['Marketing'], function(err, accounts)) {\n                 if (err) return console.error(err);\n\n                 for (var key in initiatives) {\n                    console.log(initiatives[key]);\n                }\n            });\n        });\n    });"
             ],
             "todo": [
                 "support pagination"
@@ -569,92 +534,8 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 437,
-            "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeCompany\" \"activeCompany\"}}{{/propertyLink}}\nfor the current user. If the list of available\ncompanies is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeCompany if it exists in the list.\n\nUpon successfully setting the activeCompany, the user's activeInitiative\nand activeAccount, as well as their respective lists, are reset to null.",
-            "itemtype": "method",
-            "name": "setCompany",
-            "params": [
-                {
-                    "name": "companyName",
-                    "description": "The name of the company to set as active.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a boolean representing if the\nactiveCompany was successfully set.",
-                    "type": "Function",
-                    "optional": true
-                }
-            ],
-            "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        if (err) return console.error(err);\n\n        conn.setCompany('Planet Express', function(found) {\n            if (!found) {\n                return console.error(new Error('Company not found'));\n            } else {\n                // do something\n            }\n        });\n    });"
-            ],
-            "todo": [
-                "allow setting company by other parameters",
-                "such as ID"
-            ],
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 487,
-            "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeInitiative\" \"activeInitiative\"}}{{/propertyLink}}\nfor the current user. If the list of available\ninitiatives is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeInitiative if it exists in the list.\n\nUpon successfully setting the activeInitiative, the user's activeAccount\nand list of available accounts are reset to null.",
-            "itemtype": "method",
-            "name": "setInitiative",
-            "params": [
-                {
-                    "name": "initiativeName",
-                    "description": "The name of the initiative to set as active.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a boolean representing if the\nactiveInitiative was successfully set.",
-                    "type": "Function",
-                    "optional": true
-                }
-            ],
-            "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Assuming conn.user.companies is already initialized\n    conn.getInitiatives(function(err, initiatives) {\n        if (err) return console.error(err);\n\n        conn.setInitiative('Marketing', function(found) {\n            if (!found) {\n                return console.error(new Error('Initiative not found'));\n            } else {\n                // do something\n            }\n        });\n    });"
-            ],
-            "todo": [
-                "allow setting initiative by other parameters",
-                "such as ID"
-            ],
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 533,
-            "description": "Sets the\n{{#propertyLink \"Connection\" \"user.activeAccount\" \"activeAccount\"}}{{/propertyLink}}\nfor the current user. If the list of available\naccounts is not yet initialized, this method will attempt to initialize it\nfirst, and then set the activeAccount if it exists in the list.",
-            "itemtype": "method",
-            "name": "setAccount",
-            "params": [
-                {
-                    "name": "accountName",
-                    "description": "The name of the account to set as active.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback function to be called with any\nerrors (or null if none exist), and a boolean representing if the\nactiveAccount was successfully set.",
-                    "type": "Function",
-                    "optional": true
-                }
-            ],
-            "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    // Assuming conn.user.companies and conn.user.initiatives\n    // are already initialized\n    conn.getAccounts(function(err, accounts) {\n        if (err) return console.error(err);\n\n        conn.setAccount('My Twitter Account', function(found) {\n            if (!found) {\n                return console.error(new Error('Account not found'));\n            } else {\n                // do something\n            }\n        });\n    });"
-            ],
-            "todo": [
-                "allow setting account by other parameters",
-                "such as ID"
-            ],
-            "class": "Connection"
-        },
-        {
-            "file": "lib/api/connection.js",
-            "line": 570,
-            "description": "Method to publish a message via the Conversations API. Requires the current\nuser to have a defined\n{{#propertyLink \"Connection\" \"user.activeCompany\" \"activeCompany\"}}{{/propertyLink}}\nand\n{{#propertyLink \"Connection\" \"user.activeInitiative\" \"activeInitiative\"}}{{/propertyLink}}\nwith which to publish.\n\nNote that the callback function provided here is called when the method is\ndone communicating the publication request to the API server, NOT when\nthe message is actually published\n(see {{#crossLink \"Message\"}}Message.callbacks{{/crossLink}}).",
+            "line": 386,
+            "description": "Method to publish a message via the Conversations API, through the company,\ninitiative, and accounts specified in the provided Message object.\n\nNote that the callback function provided here is called when the method is\ndone communicating the publication request to the API server, NOT when\nthe message is actually published\n(see {{#crossLink \"Message\"}}Message.callbacks{{/crossLink}}).",
             "itemtype": "method",
             "name": "publish",
             "params": [
@@ -670,18 +551,34 @@
                     "optional": true
                 }
             ],
-            "throws": {
-                "description": "If the message's specified accounts are of\nincorrect Service type to publish the message.",
-                "type": "Error"
-            },
             "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    // initialize the user's company, initiative, and accounts\n\n    var msg = new spredfast.Message({\n        service: 'FACEBOOK',\n        accounts: ['42'],\n        content: {\n            sfEntityType: 'Status',\n            text: 'Here is my status text'\n        },\n        callbacks: [\n            function(req, res) {\n                console.log('callback');\n            }\n        ]\n    });\n\n    conn.publish(msg, function(err, res) {\n        if (err) return console.error(err);\n    });"
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            conn.getAccounts(initiatives['Marketing'], function(err, accounts)) {\n                var targetAccounts = Object.keys(accounts).map(function(key) {\n                    if (accounts[key].service === spredfast.services.FACEBOOK) {\n                        return accounts[key];\n                    }\n                });\n\n                var msg = new spredfast.Message({\n                    company: companies['Planet Express'],\n                    initiative: initiatives['Marketing'],\n                    service: spredfast.services.FACEBOOK,\n                    accounts: targetAccounts,\n                    content: {\n                        sfEntityType: spredfast.contentTypes.STATUS,\n                        text: 'Here is my status text'\n                   },\n                   callbacks: [\n                       function(req, res) {\n                           console.log('callback');\n                       }\n                   ]\n                });\n            });\n        });\n    });\n\n    conn.publish(msg, function(err, res) {\n        if (err) return console.error(err);\n        else console.log('Message published successfully.');\n    });"
+            ],
+            "class": "Connection"
+        },
+        {
+            "file": "lib/api/connection.js",
+            "line": 468,
+            "description": "Method to retrieve publishing privileges for the currently authenticated user.",
+            "itemtype": "method",
+            "name": "getUserPrivileges",
+            "params": [
+                {
+                    "name": "company",
+                    "description": "The company for which the user has privileges.",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback function to be called with any\nerrors (or null if none exist), and an object containing the user's privileges\nas well as a reference to the company for which the privileges apply.",
+                    "type": "Function"
+                }
             ],
             "class": "Connection"
         },
         {
             "file": "lib/api/message.js",
-            "line": 105,
+            "line": 114,
             "description": "Generates the raw JSON to send to the API server.",
             "itemtype": "method",
             "name": "build",
@@ -693,7 +590,19 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 129,
+            "line": 139,
+            "description": "If the message is of type ImageShare, this function will provide the\nraw image data needed to send over HTTP.",
+            "itemtype": "method",
+            "name": "imageData",
+            "return": {
+                "description": "A NodeJS Read Stream object for the image.",
+                "type": "fs.ReadStream"
+            },
+            "class": "Message"
+        },
+        {
+            "file": "lib/api/message.js",
+            "line": 155,
             "description": "Custom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
             "type": "Function",
             "access": "private",
@@ -712,7 +621,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 181,
+            "line": 252,
             "description": "Dynamically sets up an ExpressJS server with a map of callback functions that\nwill be called if and when the Spredfast API server sends an HTTP request\nto this callback server with a valid function ID.",
             "itemtype": "method",
             "name": "setupCallback",
@@ -729,6 +638,9 @@
                 "description": "The URI that the Spredfast API should notify to execute the callback function.",
                 "type": "String"
             },
+            "todo": [
+                "Dynamically configure URI"
+            ],
             "class": "Message"
         },
         {
@@ -813,16 +725,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 174,
-            "description": "The required options for the specific OAuth flow type, all of which require 'user'.",
-            "type": "String[]",
-            "access": "private",
-            "tagname": "",
-            "class": "OAuth"
-        },
-        {
-            "file": "lib/api/oauth.js",
-            "line": 193,
+            "line": 186,
             "description": "The 'Server' OAuth flow type. Requires a username, clientId, clientSecret,\nand redirectUri.",
             "itemtype": "method",
             "name": "Server",
@@ -870,7 +773,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 241,
+            "line": 234,
             "description": "Method to retrieve an existing OAuth object that has been saved to a JSON file.\nIf the OAuth object cannot be retrieved, this method will instead initialize a\nnew OAuth flow from the provided alternative method.\n\nOAuth objects are stored and retrieved using the options.user (user email)\nproperty as a unique key.\n\nNote that while this method only requires a 'user' option be provided, if the\nalternative OAuth method is called it will still require its usual required\noptions.",
             "itemtype": "method",
             "name": "Existing",
@@ -969,7 +872,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 80,
+            "line": 73,
             "description": "A slightly more robust way of determining the type of a variable, which\nwill also specify if the variable is an array, as well as the types of the\narray's elements.",
             "itemtype": "method",
             "name": "getType",
@@ -988,61 +891,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 108,
-            "description": "This method is intended to set a property on an object, only if the value\nthat property is being set to is contained on a different object in a seperate list. Additionally,\nif that list is uninitialized (i.e. null or undefined __not__ merely empty),\nthen this method will attempt to initialize it using a supplied function.\nWhen finished, executes the callback function with a boolean representing\nif the value was set successfully.",
-            "itemtype": "method",
-            "name": "setIfInitializedAndFound",
-            "static": 1,
-            "params": [
-                {
-                    "name": "obj",
-                    "description": "The object whose property will be set.",
-                    "type": "Object"
-                },
-                {
-                    "name": "prop",
-                    "description": "The name of the property being set on obj.",
-                    "type": "String"
-                },
-                {
-                    "name": "value",
-                    "description": "The value prop is being set to.",
-                    "type": "Any"
-                },
-                {
-                    "name": "list",
-                    "description": "The list of objects, one of whose properties must equal value.",
-                    "type": "Any[]"
-                },
-                {
-                    "name": "matchProp",
-                    "description": "The name of the property on the list's objects being compared to value.",
-                    "type": "String"
-                },
-                {
-                    "name": "init",
-                    "description": "The initialization function for the list, __must__\nreturn a defined list in a Node-style callback.",
-                    "type": "Function"
-                },
-                {
-                    "name": "callback",
-                    "description": "The optional callback function to be called with\na boolean representing whether the property was successfuly set.",
-                    "type": "Function",
-                    "optional": true
-                }
-            ],
-            "throws": {
-                "description": "If the initialization function fails to return a defined list,\nor passes an error of its own.",
-                "type": "Error"
-            },
-            "example": [
-                "\n    var obj = { property: 'before' },\n        prop = 'property',\n        value = 'after',\n        list = null,\n        matchProp = 'name';\n    function initFn (callback) {\n        list = [\n            { name: 'before', other: 'someValue' },\n            { name: 'during', other: 'someOtherValue' }\n        ];\n        callback(null, list);\n    }\n\n    util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, function(found) {\n        console.log(found); // false\n        console.log(obj); // { property: 'before' }\n    });\n\n    console.log(list !== null); // true\n\n    list.push({ name: 'after', other: 'yetAnotherValue' });\n\n    util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, function(found) {\n        console.log(found); // true\n        console.log(obj); // { property: 'after' }\n    });"
-            ],
-            "class": "Util"
-        },
-        {
-            "file": "lib/api/util.js",
-            "line": 186,
+            "line": 100,
             "description": "Writes the result of the OAuth authorization flow to a JSON file.",
             "itemtype": "method",
             "name": "writeOAuthCreds",
@@ -1064,7 +913,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 214,
+            "line": 128,
             "description": "Reads saved OAuth info from a JSON file, and returns the OAuth object\nwhich corresponds to the given user.",
             "itemtype": "method",
             "name": "readOAuthCreds",
@@ -1087,6 +936,46 @@
                 "type": "Object"
             },
             "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 151,
+            "description": "Determines if the value provided is equal to one or more of a given\nenum object's values.",
+            "itemtype": "method",
+            "name": "validEnum",
+            "static": 1,
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The enum object.",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "The value to be checked.",
+                "type": "Object"
+            },
+            "class": "Util"
+        },
+        {
+            "file": "lib/api/util.js",
+            "line": 168,
+            "description": "Convenience function to return a file's size in MB",
+            "itemtype": "method",
+            "name": "fileSizeInMegaBytes",
+            "static": 1,
+            "params": [
+                {
+                    "name": "filePath",
+                    "description": "Path to the file whose size will be returned.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "The size of the file in MB.",
+                "type": "Number"
+            },
+            "class": "Util"
         }
     ],
     "warnings": [
@@ -1096,7 +985,7 @@
         },
         {
             "message": "Missing item type\nCustom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
-            "line": " lib/api/message.js:129"
+            "line": " lib/api/message.js:155"
         },
         {
             "message": "Missing item type\nBuilds the proper authorization URL based on which flow is being used.",
@@ -1105,10 +994,6 @@
         {
             "message": "Missing item type\nA wrapper object for all OAuth information. Contains functions for authorizing\nand retrieving access tokens.",
             "line": " lib/api/oauth.js:27"
-        },
-        {
-            "message": "Missing item type\nThe required options for the specific OAuth flow type, all of which require 'user'.",
-            "line": " lib/api/oauth.js:174"
         }
     ]
 }

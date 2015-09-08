@@ -2,11 +2,16 @@ var fs = require('fs');
 var path = require('path');
 var spredfast = require('../lib/spredfast.js');
 var unirest = require('unirest');
+var util = require('../lib/api/util.js');
+
+var OptionError = require('../lib/api/errors.js').OptionError;
+var ContentError = require('../lib/api/errors.js').ContentError;
 
 describe('OAuth', function() {
     var self = this;
 
-    var reset = function() {
+    beforeEach(function() {
+        self.options = {};
         self.configFilepath = path.join(__dirname, 'test_config/oauth.json');
         self.required = ['user'];
         self.oauth = {};
@@ -16,46 +21,29 @@ describe('OAuth', function() {
             clientSecret: 'sSJAgVj9ZQ',
             redirectUri: 'http://localhost:3000/callback'
         };
-        self.options = {};
-    }
-
-    beforeEach(reset);
-    afterEach(reset);
+        self.fn = null;
+    });
 
     describe('server flow', function() {
         beforeEach(function() {
             self.required = self.required.concat(['clientId','redirectUri','clientSecret']);
+            self.fn = function() {
+                return spredfast.OAuth.Server(self.options);
+            }
         });
 
         describe('upon creation', function() {
             it('checks for all required options', function() {
-                self.required.forEach(function(option, i, arr) {
-                    Object.defineProperty(self.options, option, {
-                        value: Object.getOwnPropertyDescriptor(self.testOptions, option).value,
-                        enumerable: true,
-                        configurable: true
-                    });
-                    if (Object.keys(self.options).length !== Object.keys(self.testOptions).length) {
-                        expect(function() {
-                            return spredfast.OAuth.Server(self.options);
-                        }).toThrowError('Invalid options');
-                    }
-                });
-                var options = self.options;
-                expect(function() {
-                    return spredfast.OAuth.Server(self.options);
-                }).not.toThrowError('Invalid options');
+                this.validateOptions(self.required, self.options, self.testOptions, self.fn);
+                self.options = self.testOptions;
+                expect(self.fn).not.toThrowError(OptionError);
             });
 
             it('is defined and instantiated properly', function() {
                 self.options = self.testOptions;
+                expect(self.fn).not.toThrow();
 
-                var fn = function() {
-                    return spredfast.OAuth.Server(self.options);
-                }
-
-                expect(fn).not.toThrow();
-                self.oauth = fn();
+                self.oauth = self.fn();
                 expect(self.oauth).toBeDefined();
                 expect(self.oauth.type).toEqual('Server');
                 expect(self.oauth.grantType).toEqual('authorization_code');
@@ -65,10 +53,10 @@ describe('OAuth', function() {
         describe('when authorizing', function() {
             it('returns an authorization url', function() {
                 self.options = self.testOptions;
-                self.oauth = spredfast.OAuth.Server(self.options);
+                self.oauth = self.fn();
 
-                expect(typeof self.oauth.authorize()).toEqual('string');
-                expect(self.oauth.authorize()).toEqual(
+                var authUrl = self.oauth.authorize();
+                expect(authUrl).toEqual(
                     'https://infralogin.spredfast.com/v1/oauth/authorize?'
                     + 'response_type=code&client_id=e65a9f746vt63vqxnu5r87c7'
                     + '&redirect_uri=http://localhost:3000/callback'
@@ -77,20 +65,21 @@ describe('OAuth', function() {
         });
 
         describe('after authorizing', function() {
-            unirest.get('https://infralogin.spredfast.com/v1/oauth/authorize')
-            .end(function(response) {
-                self.code = response.code;
+            beforeEach(function(done) {
+                self.options = self.testOptions;
+                self.oauth = self.fn();
+                unirest.get(self.oauth.authorize()).end(function(response) {
+                    self.code = response.body.code;
+                    done();
+                });
+            });
 
-                it('gets an access token', function() {
-                    var callback = jasmine.createSpy('callback');
-                    self.oauth.getAccessToken(self.code, self.configFilepath, callback);
-
+            it('gets an access token', function() {
+                self.oauth.getAccessToken(self.code, self.configFilepath, function(err, oauth) {
+                    expect(err).toBe(null);
                     var token = util.readOAuthCreds(self.oauth.user,
                         self.configFilepath).accessToken;
-
-                    expect(callback).toHaveBeenCalledWith(jasmine.objectContaining({
-                        accessToken: token
-                    }));
+                    expect(oauth.accessToken).toEqual(token);
                 });
             });
         });
@@ -98,42 +87,26 @@ describe('OAuth', function() {
 
     describe('from existing configuration', function() {
         beforeEach(function() {
-            self.testOptions = {
-                user: 'admin@devbox.spredfast.com',
-                clientId: 'e65a9f746vt63vqxnu5r87c7',
-                clientSecret: 'sSJAgVj9ZQ',
-                redirectUri: 'http://localhost:3000/callback',
-                path: self.configFilepath
-            };
-            self.options.path = self.configFilepath;
             fs.writeFileSync(self.configFilepath, '');
+            self.testOptions.path = self.configFilepath;
+            self.options.path = self.configFilepath;
+            self.fn = function() {
+                return spredfast.OAuth.Existing(self.options, spredfast.OAuth.Server);
+            }
         });
 
-        var fn = function() {
-            return spredfast.OAuth.Existing(self.options, spredfast.OAuth.Server);
-        }
-
         it('checks for all required options', function() {
-            self.required.forEach(function(option, i, arr) {
-                Object.defineProperty(self.options, option, {
-                    value: Object.getOwnPropertyDescriptor(self.testOptions, option).value,
-                    enumerable: true,
-                    configurable: true
-                });
-                if (Object.keys(self.options).length !== Object.keys(self.testOptions).length) {
-                    expect(fn).toThrowError('Invalid options');
-                }
-            });
+            this.validateOptions(self.required, self.options, self.testOptions, self.fn);
             self.options = self.testOptions;
-            expect(fn).not.toThrowError('Invalid options');
+            expect(self.fn).not.toThrowError(OptionError);
         });
 
         describe('upon failure to load', function() {
             it('is defined and instantiated properly from the alternative', function() {
                 self.options = self.testOptions;
                 self.options.user = 'test_user';
-                expect(fn).not.toThrow();
-                var oauth = fn();
+                expect(self.fn).not.toThrow();
+                var oauth = self.fn();
 
                 expect(oauth).toBeDefined();
                 expect(oauth.type).toEqual('Server');
@@ -151,7 +124,7 @@ describe('OAuth', function() {
                 fs.writeFileSync(self.configFilepath, oauth);
                 self.options = self.testOptions;
 
-                oauth = fn();
+                oauth = self.fn();
                 expect(oauth).toBeDefined();
                 expect(oauth.accessToken).toBeDefined();
             });

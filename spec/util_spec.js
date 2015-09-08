@@ -9,54 +9,6 @@ var ContentError = errors.ContentError;
 
 describe('Utility', function() {
     var self = this;
-    describe('#setIfInitializedAndFound', function() {
-        var obj, prop, value, list, matchProp, initFn;
-        var callback = jasmine.createSpy('callback');
-
-        beforeEach(function() {
-            obj = { property: 'pre-test' };
-            prop = 'property';
-            value = '';
-            list = null;
-            matchProp = 'name';
-            initFn = function(callback) {
-                list = [
-                    { name: 'dummy0', other: 'someValue0' },
-                    { name: 'dummy1', other: 'someValue1' },
-                    { name: 'dummy2', other: 'someValue2' },
-                    { name: 'dummy3', other: 'someValue3' }
-                ];
-                callback(null, list);
-            }
-        });
-
-        it('throws an error if the init function does not initialize the list', function() {
-            initFn = function(callback) { callback(null) }
-            var fn = function() {
-                util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, callback);
-            }
-            expect(fn).toThrowError('Init function failed to initialize list');
-        });
-
-        it('initializes an uninitialized list', function() {
-            util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, callback);
-            expect(list.length).toBeGreaterThan(0);
-        });
-
-        it('does not set the property if not found in the list', function() {
-            util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, callback);
-            expect(callback).toHaveBeenCalledWith(false);
-            expect(Object.getOwnPropertyDescriptor(obj, prop).value).not.toEqual(value);
-        });
-
-        it('sets the property if found in the list', function() {
-            value = 'dummy2';
-            util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, callback);
-            expect(callback).toHaveBeenCalledWith(true);
-            var listObj = { name: 'dummy2', other: 'someValue2' };
-            expect(Object.getOwnPropertyDescriptor(obj, prop).value).toEqual(listObj);
-        });
-    });
     describe('#writeOAuthCreds and #readOAuthCreds', function() {
         self.filePath = path.join(__dirname, 'test_config/temp.json');
         var reset = function() {
@@ -83,11 +35,9 @@ describe('Utility', function() {
             expect(function() {
                 self.writeFn(self.oauth, self.filePath);
             }).not.toThrow();
-            fs.readFile(self.filePath, 'utf-8', function(err, data) {
-                if (err) throw err;
-                expect(data).toBeDefined();
-                expect(data).toEqual(JSON.stringify(self.oauth));
-            });
+            var data = fs.readFileSync(self.filePath, 'utf-8');
+            expect(data).toBeDefined();
+            expect(JSON.parse(data).test_user).toEqual(JSON.stringify(self.oauth));
         });
 
         it('reads an oauth object from a JSON file', function() {

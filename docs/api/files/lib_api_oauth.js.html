@@ -206,7 +206,7 @@ var oauth = {
         this.authCode = code;
         var base = &#x27;https://&#x27; + (devMode ? &#x27;infra&#x27; : &#x27;&#x27;) + &#x27;login.spredfast.com/&#x27;;
         base += &#x27;v1/oauth/token&#x27;;
-        unirest.post(tokenUrl)
+        unirest.post(base)
         .send({
             grant_type: oauth.grantType,
             code: oauth.authCode,
@@ -220,14 +220,13 @@ var oauth = {
                 return;
             }
             oauth.accessToken = response.body.data.accessToken;
+            console.log(oauth);
             util.writeOAuthCreds(oauth, path);
             callback(err, oauth);
         });
     }
 };
 
-// Different OAuth flow styles with slightly different required parameters.
-// Currently only &#x27;Server&#x27; (and &#x27;Existing&#x27;) is working.
 /**
 * Static class containing factory methods for specific OAuth flow types. &lt;br/&gt;&lt;br/&gt;
 * {{#oauthExample &quot;lib_api_connection.js.html#l286&quot; &quot;getInitiatives&quot;}}{{/oauthExample}}
@@ -259,15 +258,9 @@ var oauth = {
 * @static
 */
 module.exports = {
-    /**
-    * The required options for the specific OAuth flow type, all of which require &#x27;user&#x27;.
-    * @type String[]
-    * @private
-    */
-    requiredOptions: [&#x27;user&#x27;],
     Password: function(options) {
-        requiredOptions.concat([&#x27;pass&#x27;, &#x27;clientId&#x27;]);
-        if (err = util.validateOptions(options, requiredOptions)) throw err;
+        var required = [&#x27;pass&#x27;, &#x27;clientId&#x27;];
+        if (err = util.validateOptions(options, required)) throw err;
 
         oauth.init();
         oauth.type = &#x27;Password&#x27;;
@@ -300,8 +293,8 @@ module.exports = {
     *     });
     */
     Server: function(options) {
-        requiredOptions.concat([&#x27;clientId&#x27;, &#x27;clientSecret&#x27;, &#x27;redirectUri&#x27;]);
-        if (err = util.validateOptions(options, requiredOptions)) throw err;
+        var required = [&#x27;user&#x27;, &#x27;clientId&#x27;, &#x27;clientSecret&#x27;, &#x27;redirectUri&#x27;];
+        if (err = util.validateOptions(options, required)) throw err;
 
         oauth.init();
         oauth.type = &#x27;Server&#x27;;
@@ -314,8 +307,8 @@ module.exports = {
     },
 
     Application: function(options) {
-        requiredOptions.concat([&#x27;clientId&#x27;, &#x27;clientSecret&#x27;]);
-        if (err = util.validateOptions(options, requiredOptions)) throw err;
+        var required = [&#x27;clientId&#x27;, &#x27;clientSecret&#x27;];
+        if (err = util.validateOptions(options, required)) throw err;
 
         oauth.init();
         oauth.type = &#x27;Application&#x27;;
@@ -356,7 +349,8 @@ module.exports = {
     * @TODO ensure that token is still valid, refresh if not
     */
     Existing: function(options, alt) {
-        if (err = util.validateOptions(options, requiredOptions)) throw err;
+        var required = [&#x27;user&#x27;];
+        if (err = util.validateOptions(options, required)) throw err;
 
         oauth.init();
         return util.readOAuthCreds(options.user, options.path) || alt(options);
