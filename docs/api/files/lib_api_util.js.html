@@ -147,22 +147,15 @@ module.exports = {
     * @return {Error|null} An error if the variable is not of correct type, null otherwise.
     */
     checkType: function(foo, name, expectedTypes) {
-        if (!foo) {
-            return new ReferenceError(name + &#x27; must be defined&#x27;);
-        }
         var type = [typeof foo, this.getType(foo)];
         expectedTypes = expectedTypes.split(&#x27;||&#x27;);
 
         if (expectedTypes.indexOf(type[1]) === -1) {
             return new TypeError(name + &#x27; (&#x27; + type[0] + &#x27;) &#x27;
-            + &#x27;must be one of &#x27; + expectedTypes);
+            + &#x27;must be of type(s): &#x27; + expectedTypes);
         }
 
         return null;
-    },
-
-    isArray: function(foo) {
-        return Object.prototype.toString.call(foo) === &#x27;[object Array]&#x27;;
     },
 
     /**
@@ -177,10 +170,10 @@ module.exports = {
     */
     getType: function(foo) {
         var type = &#x27;&#x27;;
-        if (this.isArray(foo)) {
+        if (Array.isArray(foo)) {
             var barType = null;
             foo.forEach(function(bar) {
-                if (!barType) barType = typeof bar;
+                if (!barType) barType = bar === null ? &#x27;null&#x27; : typeof bar;
                 else if (barType !== typeof bar) barType = &#x27;multi&#x27;;
             });
             type = &#x27;[&#x27; + barType + &#x27;]&#x27;;
@@ -190,85 +183,6 @@ module.exports = {
             type = typeof foo;
         }
         return type;
-    },
-
-
-    /**
-    * This method is intended to set a property on an object, only if the value
-    * that property is being set to is contained on a different object in a seperate list. Additionally,
-    * if that list is uninitialized (i.e. null or undefined __not__ merely empty),
-    * then this method will attempt to initialize it using a supplied function.
-    * When finished, executes the callback function with a boolean representing
-    * if the value was set successfully.
-    *
-    * @method setIfInitializedAndFound
-    * @static
-    * @param {Object} obj The object whose property will be set.
-    * @param {String} prop The name of the property being set on obj.
-    * @param {any} value The value prop is being set to.
-    * @param {any[]} list The list of objects, one of whose properties must equal value.
-    * @param {string} matchProp The name of the property on the list&#x27;s objects being compared to value.
-    * @param {Function} init The initialization function for the list, __must__
-    * return a defined list in a Node-style callback.
-    * @param {Function} [callback] The optional callback function to be called with
-    * a boolean representing whether the property was successfuly set.
-    * @throws {Error} If the initialization function fails to return a defined list,
-    * or passes an error of its own.
-    * @example
-    *     var obj = { property: &#x27;before&#x27; },
-    *         prop = &#x27;property&#x27;,
-    *         value = &#x27;after&#x27;,
-    *         list = null,
-    *         matchProp = &#x27;name&#x27;;
-    *     function initFn (callback) {
-    *         list = [
-    *             { name: &#x27;before&#x27;, other: &#x27;someValue&#x27; },
-    *             { name: &#x27;during&#x27;, other: &#x27;someOtherValue&#x27; }
-    *         ];
-    *         callback(null, list);
-    *     }
-    *
-    *     util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, function(found) {
-    *         console.log(found); // false
-    *         console.log(obj); // { property: &#x27;before&#x27; }
-    *     });
-    *
-    *     console.log(list !== null); // true
-    *
-    *     list.push({ name: &#x27;after&#x27;, other: &#x27;yetAnotherValue&#x27; });
-    *
-    *     util.setIfInitializedAndFound(obj, prop, value, list, matchProp, initFn, function(found) {
-    *         console.log(found); // true
-    *         console.log(obj); // { property: &#x27;after&#x27; }
-    *     });
-    */
-    setIfInitializedAndFound: function(obj, prop, value, list, matchProp, init, callback) {
-        if (!list) {
-            init(function(err, newList) {
-                if (err || !newList) {
-                    throw (err || new Error(&#x27;Init function failed to initialize list&#x27;));
-                }
-                var util = require(&#x27;./util.js&#x27;);
-                util.setIfInitializedAndFound(obj, prop, value, newList, matchProp, init, callback);
-            });
-        } else {
-            var found = false;
-            list.forEach(function(el) {
-                var descriptor = Object.getOwnPropertyDescriptor(el, matchProp);
-                if (!descriptor) return;
-
-                if (descriptor.value === value) {
-                    found = true;
-
-                    Object.defineProperty(obj, prop, {
-                        value: descriptor.value,
-                        enumerable: true,
-                        configurable: true
-                    });
-                }
-            });
-            if (callback) callback(found);
-        }
     },
 
     /**
@@ -320,6 +234,36 @@ module.exports = {
 
         var oauth = Object.getOwnPropertyDescriptor(data, user);
         return oauth ? JSON.parse(oauth.value) : null;
+    },
+
+    /**
+    * Determines if the value provided is equal to one or more of a given
+    * enum object&#x27;s values.
+    *
+    * @method validEnum
+    * @static
+    * @param {Object} obj The enum object.
+    * @return {Object} The value to be checked.
+    */
+    validEnum: function(obj, value) {
+        return Object.keys(obj).map(function(key){
+            return obj[key];
+        }).some(function(val) {
+            return Object.is(val, value);
+        });
+    },
+
+    /**
+    * Convenience function to return a file&#x27;s size in MB
+    *
+    * @method fileSizeInMegaBytes
+    * @static
+    * @param {String} filePath Path to the file whose size will be returned.
+    * @return {Number} The size of the file in MB.
+    */
+    fileSizeInMegaBytes: function(filePath) {
+        if (!filePath) return 0;
+        return fs.statSync(filePath)[&#x27;size&#x27;] / 1000000.0;
     }
 };
 

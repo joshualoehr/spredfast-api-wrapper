@@ -87,7 +87,7 @@
 
 
         <div class="foundat">
-            Defined in: <a href="../files/lib_api_message.js.html#l14"><code>lib&#x2F;api&#x2F;message.js:14</code></a>
+            Defined in: <a href="../files/lib_api_message.js.html#l23"><code>lib&#x2F;api&#x2F;message.js:23</code></a>
         </div>
 
             Module: <a href="../modules/Spredfast.html">Spredfast</a>
@@ -135,7 +135,7 @@ new labels requires the caller's UserPrivilege to include canCreateLabels.
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_message.js.html#l14"><code>lib&#x2F;api&#x2F;message.js:14</code></a>
+        <a href="../files/lib_api_message.js.html#l23"><code>lib&#x2F;api&#x2F;message.js:23</code></a>
         </p>
 
 
@@ -177,9 +177,9 @@ by which this message will be published (e.g. 'TWITTER', 'FACEBOOK', etc.).</p>
                                     <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number[]</a></span>
 
                                 <div class="param-description">
-                                    <p>An array of the account ID's corresponding to
-the accounts which will publish this Message. Each of the listed accounts must
-be of the same Service type as the Message.</p>
+                                    <p>An array of accounts with which to publish
+the message. Each of the listed accounts must be of the same Service type as
+the Message.</p>
 
                                 </div>
 
@@ -346,6 +346,10 @@ var msg = new spredfast.Message({
                                 <a href="#method_build">build</a>
 
                             </li>
+                            <li class="index-item method">
+                                <a href="#method_imageData">imageData</a>
+
+                            </li>
                             <li class="index-item method private">
                                 <a href="#method_setupCallback">setupCallback</a>
 
@@ -378,7 +382,7 @@ var msg = new spredfast.Message({
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_message.js.html#l105"><code>lib&#x2F;api&#x2F;message.js:105</code></a>
+        <a href="../files/lib_api_message.js.html#l114"><code>lib&#x2F;api&#x2F;message.js:114</code></a>
         </p>
 
 
@@ -397,6 +401,50 @@ var msg = new spredfast.Message({
             <div class="returns-description">
                         <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>:
                     <p>The JSON of this Message object.</p>
+
+            </div>
+        </div>
+
+
+</div>
+<div id="method_imageData" class="method item">
+    <h3 class="name"><code>imageData</code></h3>
+
+        <span class="paren">()</span>
+
+        <span class="returns-inline">
+            <span class="type">fs.ReadStream</span>
+        </span>
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/lib_api_message.js.html#l139"><code>lib&#x2F;api&#x2F;message.js:139</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>If the message is of type ImageShare, this function will provide the
+raw image data needed to send over HTTP.</p>
+
+    </div>
+
+
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                        <span class="type">fs.ReadStream</span>:
+                    <p>A NodeJS Read Stream object for the image.</p>
 
             </div>
         </div>
@@ -428,7 +476,7 @@ var msg = new spredfast.Message({
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_message.js.html#l181"><code>lib&#x2F;api&#x2F;message.js:181</code></a>
+        <a href="../files/lib_api_message.js.html#l252"><code>lib&#x2F;api&#x2F;message.js:252</code></a>
         </p>
 
 

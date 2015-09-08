@@ -89,7 +89,7 @@
 var unirest = require(&#x27;unirest&#x27;);
 var util = require(&#x27;./util.js&#x27;);
 
-var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;];
+var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;,&#x27;put&#x27;];
 
 /**
 * A class containing methods that abstract out common API uses.
@@ -100,6 +100,7 @@ var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;];
 * accessToken property
 * @param {String} oauth.accessToken The OAuth accessToken unique to the currently
 * authenticated user.
+* @param {Boolean} [log] Flag to toggle logging output from this connection. Defaults to false.
 * @requires unirest
 * @requires util.js
 * @example
@@ -131,9 +132,8 @@ var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;];
 *         accessToken: &lt;accessToken&gt;
 *     };
 *     var conn = new spredfast.Connection(oauth);
-* @TODO ability to toggle logging
 */
-function Connection(oauth) {
+function Connection(oauth, log) {
     /**
     * A reference to &#x27;this&#x27; to sidestep scoping issues.
     * @type Object
@@ -148,10 +148,13 @@ function Connection(oauth) {
     * @private
     */
     this.oauth = oauth;
+    if (!oauth || !oauth.accessToken) {
+        throw new Error(&#x27;Must provide an OAuth2.0 Access Token to create a new Connection&#x27;);
+    }
 
     /**
     * The base URI for the API to be used by this connection. Defaults to the
-    * QA API.
+    * QA API (for now).
     *
     * @property baseUri
     * @type String
@@ -159,71 +162,22 @@ function Connection(oauth) {
     this.baseUri = &#x27;https://qa2api.spredfast.com/&#x27;;
 
     /**
-    * Container object for information regarding the currently authenticated user.
+    * Optional web proxy for HTTP requests.
     *
-    * @property user
-    * @type Object
+    * @property proxy
+    * @type String
+    * @default null
     */
-    this.user = {
-        /**
-        * The current user&#x27;s email address
-        * @property user.email
-        * @type String
-        * @default null
-        */
-        email: null,
+    this.proxy = null;
 
-        /**
-        * The available companies for the current user
-        * @property user.companies
-        * @type Object[]
-        * @default null
-        */
-        companies: null,
-
-        /**
-        * The current user&#x27;s &#x27;active&#x27; company. Used as a default value where
-        * a company value is required.
-        * @property user.activeCompany
-        * @type Object
-        * @default null
-        */
-        activeCompany: null,
-
-        /**
-        * The available initiatives for the current user
-        * @property user.initiatives
-        * @type Object[]
-        * @default null
-        */
-        initiatives: null,
-
-        /**
-        * The current user&#x27;s &#x27;active&#x27; initiative. Used as a default value where
-        * an initiative value is required.
-        * @property user.activeInitiative
-        * @type Object
-        * @default null
-        */
-        activeInitiative: null,
-
-        /**
-        * The available accounts for the current user
-        * @property user.accounts
-        * @type Object[]
-        * @default null
-        */
-        accounts: null,
-
-        /**
-        * The current user&#x27;s &#x27;active&#x27; account. Used as a default value where
-        * an account value is required.
-        * @property user.activeAccount
-        * @type Object
-        * @default null
-        */
-        activeAccount: null
-    };
+    /**
+    * Property to toggle logging output.
+    *
+    * @property logging
+    * @type boolean
+    * @default false
+    */
+    this.log = !!log;
 
     /**
     * General-purpose method for making requests against the Spredfast API.
@@ -282,40 +236,68 @@ function Connection(oauth) {
         var unirestFn = Object.getOwnPropertyDescriptor(unirest, method).value;
 
         var req = unirestFn(this.baseUri + endpoint);
-
+        if (this.proxy) req.proxy(this.proxy);
         req.headers({ Authorization: &#x27;Bearer &#x27; + this.oauth.accessToken });
+
         if (options.query) req.query(options.query);
         if (options.type) req.headers({ &#x27;Content-Type&#x27;: options.type });
         if (options.send) req.send(options.send);
+        if (options.multipart) req.multipart(options.multipart);
+
+        if (options.multipart) {
+            console.log(&#x27;Message JSON:&#x27;);
+            console.log(options.multipart[0].body);
+        }
+
         req.end(function(res) {
-            // try {
-            //     console.log(method + &#x27; &#x27; + res.request.href);
-            // } catch (e) {}
+            if (log) console.log(method.toUpperCase() + &#x27; &#x27; + endpoint);
             var err = res.error;
             callback(err ? err : null, res ? res.body : null);
         });
     }
 
     /**
-    * Method to populate the
-    * {{#propertyLink &quot;Connection&quot; &quot;user.companies&quot;}}{{/propertyLink}}
-    * list with companies available to the
-    * current user. If at least 1 company is returned, this method will set the
-    * user&#x27;s activeCompany property to the first company in the returned list.
-    * Additionally sets the user&#x27;s email address.
+    * Method to retrieve the email of the currently authenticated user.
+    *
+    * @method getUserEmail
+    * @param {Function} [callback] The callback function to be called with any
+    * error (or null if none exist), and the email of the user.
+    * @example
+    *     var conn = new spredfast.Connection(oauth);
+    *
+    *     conn.getUserEmail(function(err, email) {
+    *         if (err) return console.error(err);
+    *
+    *         console.log(email);
+    *     });
+    */
+    this.getUserEmail = function(callback) {
+        self.request(&#x27;v1/me&#x27;, &#x27;get&#x27;, function(err, res) {
+            if (err) {
+                if (callback) callback(err, null);
+                return;
+            }
+            if (callback) callback(null, res.data.email);
+        });
+    }
+
+    /**
+    * Method to retrieve the available companies for the currently authenticated user.
+    * The list of companies is passed to the callback function as a map with
+    * company names as keys and the company entity objects as values.
     *
     * @method getCompanies
-    * @param {Function} [callback] The callback function to be called with any
-    * errors (or null if none exist), and an array of company objects.
+    * @param {Function} callback The callback function to be called with any
+    * errors (or null if none exist), and a map of company objects.
     * @example
     *     var conn = new spredfast.Connection(oauth);
     *
     *     conn.getCompanies(function(err, companies) {
     *         if (err) return console.error(err);
     *
-    *         companies.forEach(function(company, i, arr) {
-    *             console.log(Object.keys(company)); // [sfEntityType, id, name, environment]
-    *         });
+    *         for (var key in companies) {
+    *             console.log(companies[key]);
+    *         }
     *     });
     */
     this.getCompanies = function(callback) {
@@ -324,39 +306,27 @@ function Connection(oauth) {
                 if (callback) callback(err, null);
                 return;
             }
-            if (res.body) res = res.body;
-            self.user.email = res.data.email;
-            self.user.companies = res.data.companies;
 
-            self.user.companies.forEach(function(company) {
+            var companies = {};
+            res.data.companies.forEach(function(company) {
                 company.environment = company.environment.toLowerCase();
+                companies[company.name] = company;
             });
 
-            // default to the first listed company
-            if (self.user.companies.length) {
-                self.user.activeCompany = self.user.companies[0];
-            }
-
-            if (callback) callback(err, self.user.companies);
+            if (callback) callback(err, companies);
         });
     }
 
     /**
-    * Method to populate the
-    * {{#propertyLink &quot;Connection&quot; &quot;user.initiatives&quot;}}{{/propertyLink}}
-    * list with initiatives available to the
-    * current user. If at least 1 initiative is returned, this method will set the
-    * user&#x27;s activeInitiative property to the first initiative in the returned list.
+    * Method to retrieve the available initiatives for the currently authenticated user.
+    * The list of initiatives is passed to the callback function as a map with
+    * initiative names as keys and the initiative entity objects as values.
     *
     * The API server will return paginated results. Pagination can be configured
     * with the options parameter of this method.
     *
-    * If no activeCompany is set for the current user, calling this method
-    * will result in the user&#x27;s initiatives list being set to an empty array,
-    * which will get passed to the callback function if one is provided. The user&#x27;s
-    * activeInitiative will be set to null.
-    *
     * @method getInitiatives
+    * @param {Object} company The company containing the initiatives to be retrieved.
     * @param {Object} [options] Additional options for the HTTP request.
     * @param {number} [options.pageSize] The number of initiatives the server will
     * return per page. Must be between 0 and 100 (exclusive), defaults to 20.
@@ -365,81 +335,68 @@ function Connection(oauth) {
     * @param {String} [options.nameFilter] Case-insensitive search within the
     * initiative name for the provided string. If not provided, all initiatives
     * are returned.
-    * @param {Function} [callback] The callback function to be called with any
-    * errors (or null if none exist), and an array of initiative objects.
+    * @param {Function} callback The callback function to be called with any
+    * errors (or null if none exist), and a map of initiative objects.
     * @example
     *     var conn = new spredfast.Connection(oauth);
     *
-    *     // Will set a default user.activeCompany if possible
     *     conn.getCompanies(function(err, companies) {
-    *         if (err) return console.error(err);
-    *
-    *         conn.getInitiatives(function(err, initiatives) {
+    *         conn.getInitiatives(companies[&#x27;Planet Express&#x27;], function(err, initiatives) {
     *             if (err) return console.error(err);
     *
-    *             initiatives.forEach(function(initiative, i, arr) {
-    *                 console.log(Object.keys(initiative)); // [sfEntityType, id, name, description]
-    *             });
+    *             for (var key in initiatives) {
+    *                 console.log(initiatives[key]);
+    *             }
     *         });
     *     });
+    *
     * @TODO support pagination
     */
-    this.getInitiatives = function(options, callback) {
+    this.getInitiatives = function(company, options, callback) {
         if (typeof options === &#x27;function&#x27;) {
             callback = options;
-            options = {
-                pageSize: 20
-            };
+            options = undefined;
         }
-        if (!self.user.activeCompany) {
-            self.user.activeInitiative = null;
-            self.user.initiatives = [];
-            if (callback) callback(null, self.user.initiatives);
+
+        try {
+            var endpoint = company.environment + &#x27;/v1/company/&#x27;
+                            + company.id + &#x27;/initiative&#x27;;
+        } catch (err) {
+            // Catch missing properties on company object
+            callback(err, null);
             return;
         }
 
-        var endpoint = self.user.activeCompany.environment + &#x27;/v1/company/&#x27;
-                        + self.user.activeCompany.id + &#x27;/initiative&#x27;;
-
         var query = {};
-        if (options.pageSize &amp;&amp; options.pageSize &gt; 0 &amp;&amp; options.pageSize &lt; 100) {
-            query.pageSize = options.pageSize;
+        if (options) {
+            if (options.pageSize &amp;&amp; options.pageSize &gt; 0 &amp;&amp; options.pageSize &lt; 100) {
+                query.pageSize = options.pageSize;
+            }
+            if (options.pageNumber) query.pageNumber = options.pageNumber;
+            if (options.nameFilter) query.nameFilter = options.nameFilter;
         }
-        if (options.pageNumber) query.pageNumber = options.pageNumber;
-        if (options.nameFilter) query.nameFilter = options.nameFilter;
 
         self.request(endpoint, &#x27;get&#x27;, { query: query }, function(err, res) {
-                if (err) {
-                    if (callback) callback(err, null);
-                    return;
-                }
-                if (res.body) res = res.body;
-                self.user.initiatives = res.data;
-
-                // default to first listed initiative
-                if (self.user.initiatives.length) {
-                    self.user.activeInitiative = self.user.initiatives[0];
-                }
-
-                if (callback) callback(null, self.user.initiatives);
+            if (err) {
+                if (callback) callback(err, null);
+                return;
             }
-        );
+            var initiatives = {};
+            res.data.forEach(function(initiative) {
+                initiatives[initiative.name] = initiative;
+            });
+
+            if (callback) callback(null, initiatives);
+        });
     }
 
     /**
-    * Method to populate the
-    * {{#propertyLink &quot;Connection&quot; &quot;user.accounts&quot;}}{{/propertyLink}}
-    * list with accounts available to the
-    * current user. If at least 1 account is returned, this method will set the
-    * user&#x27;s activeAccount property to the first account in the returned list.
+    * Method to retrieve the available accounts for the currently authenticated user.
+    * The list of accounts is passed to the callback function as a map with
+    * account names as keys and the account entity objects as values.
     *
     * The API server will return paginated results. Pagination can be configured
     * with the options parameter of this method.
-    *
-    * If no activeCompany or activeInitiative is set for the current user,
-    * calling this method will result in the user&#x27;s accounts list being set to
-    * an empty array, which will get passed to the callback function if one is
-    * provided. The user&#x27;s activeAccount will be set to null.
     *
     * @method getAccounts
     * @param {Object} [options] Additional options for the HTTP request.
@@ -449,57 +406,49 @@ function Connection(oauth) {
     * to return. Must be &gt;= 0, defaults to 0.
     * @param {String} [options.services] Multi-valued list of possible Social
     * Network Service enums (i.e. one of &#x27;FACEBOOK&#x27;, &#x27;TWITTER&#x27;, or &#x27;LINKEDIN&#x27;).
-    * @param {Function} [callback] The callback function to be called with any
-    * errors (or null if none exist), and an array of account objects.
+    * @param {Function} callback The callback function to be called with any
+    * errors (or null if none exist), and a map of account objects.
     * @example
     *     var conn = new spredfast.Connection(oauth);
     *
-    *     // Will set a default user.activeCompany if possible
     *     conn.getCompanies(function(err, companies) {
-    *         if (err) return console.error(err);
+    *         conn.getInitiatives(companies[&#x27;Planet Express&#x27;], function(err, initiatives) {
+    *             conn.getAccounts(initiatives[&#x27;Marketing&#x27;], function(err, accounts)) {
+    *                  if (err) return console.error(err);
     *
-    *         // Will set a default user.activeInitiative if possible
-    *         conn.getInitiatives(function(err, initiatives) {
-    *             if (err) return console.error(err);
-    *
-    *             conn.getAccounts(function(err, accounts) {
-    *                 if (err) return console.error(err);
-    *
-    *                 accounts.forEach(function(account, i, arr) {
-    *                     console.log(Object.keys(account)); // [sfEntityType, id, name, service, accountType]
-    *                 });
+    *                  for (var key in initiatives) {
+    *                     console.log(initiatives[key]);
+    *                 }
     *             });
     *         });
     *     });
     * @TODO support pagination
     */
-    this.getAccounts = function(options, callback) {
+    this.getAccounts = function(company, initiative, options, callback) {
         if (typeof options === &#x27;function&#x27;) {
             callback = options;
-            options = {
-                pageSize: 20
-            };
+            options = undefined;
         }
-        if (!self.user.activeCompany || !self.user.activeInitiative) {
-            self.user.activeAccount = null;
-            self.user.accounts = [];
-            if (callback) callback(null, self.user.accounts);
+
+        try {
+            var endpoint = company.environment + &#x27;/v1/company/&#x27;
+                        + company.id + &#x27;/initiative/&#x27; + initiative.id + &#x27;/accountset&#x27;;
+        } catch (err) {
+            // Catch missing properties on company and/or initiative
+            if (callback) callback(err, null);
             return;
         }
 
-        var endpoint = self.user.activeCompany.environment + &#x27;/v1/company/&#x27;
-                        + self.user.activeCompany.id + &#x27;/initiative/&#x27;
-                        + self.user.activeInitiative.id + &#x27;/accountset&#x27;;
-
         var query = {};
-        if (options.pageSize &amp;&amp; options.pageSize &gt; 0 &amp;&amp; options.pageSize &lt; 100) {
-            query.pageSize = options.pageSize;
-        }
-        if (options.pageNumber) query.pageNumber = options.pageNumber;
-        if (options.services) {
-            query.services = options.services.map(function(val) {
-                return val.toUpperCase();
-            }).join(&#x27;&amp;services=&#x27;);
+        if (options) {
+            if (options.pageSize &amp;&amp; options.pageSize &gt; 0 &amp;&amp; options.pageSize &lt; 100) {
+                query.pageSize = options.pageSize;
+            }
+            if (options.pageNumber) query.pageNumber = options.pageNumber;
+            if (options.services) {
+                query.services =
+                    options.services.map(String.prototype.toUppercase).join(&#x27;&amp;services=&#x27;);
+            }
         }
 
         self.request(endpoint, &#x27;get&#x27;, { query: query }, function(err, res) {
@@ -508,160 +457,23 @@ function Connection(oauth) {
                     return;
                 }
 
-                if (res.body) res = res.body;
-                self.user.accounts = res.data[0].accounts;
+                var accounts = {};
+                res.data.forEach(function(accountSet) {
+                    if (accountSet.name === initiative.name) {
+                        accountSet.accounts.forEach(function(account) {
+                            accounts[account.name] = account;
+                        });
+                    }
+                });
 
-                // default to first listed account
-                if (self.user.accounts.length) {
-                    self.user.activeAccount = self.user.accounts[0];
-                }
-
-                if (callback) callback(null, self.user.accounts);
+                if (callback) callback(null, accounts);
             }
         );
     }
 
-
     /**
-    * Sets the
-    * {{#propertyLink &quot;Connection&quot; &quot;user.activeCompany&quot; &quot;activeCompany&quot;}}{{/propertyLink}}
-    * for the current user. If the list of available
-    * companies is not yet initialized, this method will attempt to initialize it
-    * first, and then set the activeCompany if it exists in the list.
-    *
-    * Upon successfully setting the activeCompany, the user&#x27;s activeInitiative
-    * and activeAccount, as well as their respective lists, are reset to null.
-    *
-    * @method setCompany
-    * @param {String} companyName The name of the company to set as active.
-    * @param {Function} [callback] The callback function to be called with any
-    * errors (or null if none exist), and a boolean representing if the
-    * activeCompany was successfully set.
-    * @example
-    *     var conn = new spredfast.Connection(oauth);
-    *
-    *     conn.getCompanies(function(err, companies) {
-    *         if (err) return console.error(err);
-    *
-    *         conn.setCompany(&#x27;Planet Express&#x27;, function(found) {
-    *             if (!found) {
-    *                 return console.error(new Error(&#x27;Company not found&#x27;));
-    *             } else {
-    *                 // do something
-    *             }
-    *         });
-    *     });
-    * @TODO allow setting company by other parameters, such as ID
-    */
-    this.setCompany = function(companyName, callback) {
-        util.setIfInitializedAndFound(self.user, &#x27;activeCompany&#x27;, companyName,
-            self.user.companies, &#x27;name&#x27;, self.getCompanies, function(found) {
-                self.user.activeCompany.environment =
-                    self.user.activeCompany.environment.toLowerCase();
-
-                // Since initiatives are tied to companies,
-                // reset the available list of initiatives (and accounts)
-                if (found) {
-                    self.user.initiatives = null;
-                    self.user.activeInitiative = null;
-                    self.user.accounts = null;
-                    self.user.activeAccount = null;
-                }
-
-                if (callback) callback(null, found);
-            });
-    }
-
-    /**
-    * Sets the
-    * {{#propertyLink &quot;Connection&quot; &quot;user.activeInitiative&quot; &quot;activeInitiative&quot;}}{{/propertyLink}}
-    * for the current user. If the list of available
-    * initiatives is not yet initialized, this method will attempt to initialize it
-    * first, and then set the activeInitiative if it exists in the list.
-    *
-    * Upon successfully setting the activeInitiative, the user&#x27;s activeAccount
-    * and list of available accounts are reset to null.
-    *
-    * @method setInitiative
-    * @param {String} initiativeName The name of the initiative to set as active.
-    * @param {Function} [callback] The callback function to be called with any
-    * errors (or null if none exist), and a boolean representing if the
-    * activeInitiative was successfully set.
-    * @example
-    *     var conn = new spredfast.Connection(oauth);
-    *
-    *     // Assuming conn.user.companies is already initialized
-    *     conn.getInitiatives(function(err, initiatives) {
-    *         if (err) return console.error(err);
-    *
-    *         conn.setInitiative(&#x27;Marketing&#x27;, function(found) {
-    *             if (!found) {
-    *                 return console.error(new Error(&#x27;Initiative not found&#x27;));
-    *             } else {
-    *                 // do something
-    *             }
-    *         });
-    *     });
-    * @TODO allow setting initiative by other parameters, such as ID
-    */
-    this.setInitiative = function(initiativeName, callback) {
-        util.setIfInitializedAndFound(self.user, &#x27;activeInitiative&#x27;, initiativeName,
-            self.user.initiatives, &#x27;name&#x27;, self.getInitiatives, function(found) {
-                // Since accounts are tied to initiatives,
-                // reset the available list of accounts
-                if (found) {
-                    self.user.accounts = null;
-                    self.user.activeAccount = null;
-                }
-
-                callback(null, found);
-            });
-    }
-
-    /**
-    * Sets the
-    * {{#propertyLink &quot;Connection&quot; &quot;user.activeAccount&quot; &quot;activeAccount&quot;}}{{/propertyLink}}
-    * for the current user. If the list of available
-    * accounts is not yet initialized, this method will attempt to initialize it
-    * first, and then set the activeAccount if it exists in the list.
-    *
-    * @method setAccount
-    * @param {String} accountName The name of the account to set as active.
-    * @param {Function} [callback] The callback function to be called with any
-    * errors (or null if none exist), and a boolean representing if the
-    * activeAccount was successfully set.
-    * @example
-    *     var conn = new spredfast.Connection(oauth);
-    *
-    *     // Assuming conn.user.companies and conn.user.initiatives
-    *     // are already initialized
-    *     conn.getAccounts(function(err, accounts) {
-    *         if (err) return console.error(err);
-    *
-    *         conn.setAccount(&#x27;My Twitter Account&#x27;, function(found) {
-    *             if (!found) {
-    *                 return console.error(new Error(&#x27;Account not found&#x27;));
-    *             } else {
-    *                 // do something
-    *             }
-    *         });
-    *     });
-    * @TODO allow setting account by other parameters, such as ID
-    */
-    this.setAccount = function(accountName, callback) {
-        util.setIfInitializedAndFound(self.user, &#x27;activeAccount&#x27;, accountName,
-            self.user.accounts, &#x27;name&#x27;, self.getAccounts, function(found) {
-                callback(null, found);
-            });
-    }
-
-    /**
-    * Method to publish a message via the Conversations API. Requires the current
-    * user to have a defined
-    * {{#propertyLink &quot;Connection&quot; &quot;user.activeCompany&quot; &quot;activeCompany&quot;}}{{/propertyLink}}
-    * and
-    * {{#propertyLink &quot;Connection&quot; &quot;user.activeInitiative&quot; &quot;activeInitiative&quot;}}{{/propertyLink}}
-    * with which to publish.
+    * Method to publish a message via the Conversations API, through the company,
+    * initiative, and accounts specified in the provided Message object.
     *
     * Note that the callback function provided here is called when the method is
     * done communicating the publication request to the API server, NOT when
@@ -674,69 +486,105 @@ function Connection(oauth) {
     * after the publish action has been sent to the API server. The callback is
     * passed any existing error (or null if none exists), and the body of the
     * HTTP response, respectively.
-    * @throws {Error} If the user&#x27;s account list does not contain one or more of
-    * the accounts specified in the message.
-    * @throws {Error} If the message&#x27;s specified accounts are of
-    * incorrect Service type to publish the message.
     * @example
     *     var conn = new spredfast.Connection(oauth);
     *
-    *     // initialize the user&#x27;s company, initiative, and accounts
+    *     conn.getCompanies(function(err, companies) {
+    *         conn.getInitiatives(companies[&#x27;Planet Express&#x27;], function(err, initiatives) {
+    *             conn.getAccounts(initiatives[&#x27;Marketing&#x27;], function(err, accounts)) {
+    *                 var targetAccounts = Object.keys(accounts).map(function(key) {
+    *                     if (accounts[key].service === spredfast.services.FACEBOOK) {
+    *                         return accounts[key];
+    *                     }
+    *                 });
     *
-    *     var msg = new spredfast.Message({
-    *         service: &#x27;FACEBOOK&#x27;,
-    *         accounts: [&#x27;42&#x27;],
-    *         content: {
-    *             sfEntityType: &#x27;Status&#x27;,
-    *             text: &#x27;Here is my status text&#x27;
-    *         },
-    *         callbacks: [
-    *             function(req, res) {
-    *                 console.log(&#x27;callback&#x27;);
-    *             }
-    *         ]
+    *                 var msg = new spredfast.Message({
+    *                     company: companies[&#x27;Planet Express&#x27;],
+    *                     initiative: initiatives[&#x27;Marketing&#x27;],
+    *                     service: spredfast.services.FACEBOOK,
+    *                     accounts: targetAccounts,
+    *                     content: {
+    *                         sfEntityType: spredfast.contentTypes.STATUS,
+    *                         text: &#x27;Here is my status text&#x27;
+    *                    },
+    *                    callbacks: [
+    *                        function(req, res) {
+    *                            console.log(&#x27;callback&#x27;);
+    *                        }
+    *                    ]
+    *                 });
+    *             });
+    *         });
     *     });
     *
     *     conn.publish(msg, function(err, res) {
     *         if (err) return console.error(err);
+    *         else console.log(&#x27;Message published successfully.&#x27;);
     *     });
     */
     this.publish = function(msg, callback) {
-        if (!self.user.activeCompany || !self.user.activeInitiative) {
-            var err = new Error(&#x27;The connection must have an active company &#x27;
-                + &#x27;and an active initiative to publish a message&#x27;);
+        var endpoint = msg.company.environment + &#x27;/v1/company/&#x27; + msg.company.id
+            + &#x27;/initiative/&#x27; + msg.initiative.id + &#x27;/message&#x27;;
+
+        var options;
+        if (msg.content.sfEntityType === &#x27;Status&#x27;) {
+            options = {
+                type: &#x27;application/json&#x27;,
+                send: msg.build()
+            };
+        } else {
+            options = {
+                type: &#x27;multipart/form-data&#x27;,
+                multipart: [
+                    {
+                        &#x27;content-type&#x27;: &#x27;application/json&#x27;,
+                        &#x27;content-disposition&#x27;: &#x27;form-data; name=&quot;message&quot;&#x27;,
+                        body: msg.build()
+                    },
+                    {
+                        &#x27;content-type&#x27;: &#x27;image/jpg&#x27;,
+                        &#x27;content-disposition&#x27;: &#x27;form-data; name=&quot;image&quot;; filename=&quot;image.jpg&quot;&#x27;,
+                        body: msg.imageData()
+                    }
+                ]
+            };
+        }
+
+        self.request(endpoint, &#x27;post&#x27;, options, callback);
+    }
+
+    /**
+    * Method to retrieve publishing privileges for the currently authenticated user.
+    *
+    * @method getUserPrivileges
+    * @param {Object} company The company for which the user has privileges.
+    * @param {Function} callback The callback function to be called with any
+    * errors (or null if none exist), and an object containing the user&#x27;s privileges
+    * as well as a reference to the company for which the privileges apply.
+    */
+    this.getUserPrivileges = function(company, callback) {
+        try {
+            var endpoint = company.environment + &#x27;/v1/company/&#x27;
+                        + company.id + &#x27;/privilege&#x27;;
+        } catch (err) {
+            // Catch missing properties on company and/or initiative
             callback(err, null);
             return;
         }
 
-        msg.accounts.forEach(function(account) {
-            var matchingAccounts = self.user.accounts.filter(function(acc) {
-                return acc.id === account
-            });
-
-            if (matchingAccounts.length &lt; 1) {
-                throw new Error(&#x27;No available account with ID &#x27; + account);
+        self.request(endpoint, &#x27;get&#x27;, function(err, res) {
+            if (err) {
+                if (callback) callback(err, null);
+                return;
             }
-
-            matchingAccounts.forEach(function(acc) {
-                if (acc.service !== msg.service) {
-                    throw new Error(&#x27;Account &#x27; + acc.id + &#x27; (&#x27; + acc.name + &#x27;) &#x27;
-                        + &#x27;is of incorrect service (&#x27; + acc.service + &#x27;) to &#x27;
-                        + &#x27;publish message to &#x27; + msg.service);
-                }
-            });
+            var privileges = {
+                company: company,
+                canPublish: res.data.canPublish,
+                canCreateLabels: res.data.canCreateLabels
+            }
+            callback(null, privileges);
         });
-
-        var company = self.user.activeCompany, initiative = self.user.activeInitiative;
-        var endpoint = company.environment + &#x27;/v1/company/&#x27; + company.id
-            + &#x27;/initiative/&#x27; + initiative.id + &#x27;/message&#x27;;
-        var options = {
-            type: msg.content.sfEntityType === &#x27;Status&#x27; ? &#x27;application/json&#x27; : &#x27;multipart/form-data&#x27;,
-            send: msg.build()
-        };
-        self.request(endpoint, &#x27;post&#x27;, options, callback);
     }
-
 }
 
 module.exports = Connection;

@@ -1,0 +1,76 @@
+ENDPOINTS
+
+/v1/oauth
+    GET /authorize (/{externalIdpAlias})
+        ? response_type
+        ? client_id
+        ? redirect_uri
+        (? state)
+        -> login page
+    POST /token
+        {
+            client_id
+            client_secret
+            code
+            redirect_uri
+        }
+        -> Token Entity
+
+/v1/me
+    GET /
+        -> User Entity
+
+/{env}/v1
+    /company/{companyId}
+        GET /privilege
+            -> UserPrivilege Entity
+        GET /initiative
+            (? nameFilter)
+            (? pageSize)
+            (? pageNumber)
+            -> Initiative Entity[] (paginated)
+        /initiative/{initiativeId}
+            GET /accountset
+                (? services)
+                (? pageSize)
+                (? pageNumber)
+                -> AccountSet Entity[] (paginated)
+            /message
+                POST /
+                    { Message Entity (Partial) }
+                    -> Message Entity
+                GET /{messageId}
+                    -> Message Entity
+                PUT /{messageId}
+                    { Message Entity (Partial) }
+                    -> Message Entity
+        /asset
+            POST /
+                { Asset Entity (Partial) }
+                -> Asset Entity
+            GET /{assetId}
+                -> Asset Entity
+            PUT /{assetId}
+                { Asset Entity (Partial) }
+                -> Asset Entity
+        /folder
+            GET /
+                (? nameFilter)
+                (? pageSize)
+                (? pageNumber)
+                -> Asset Folder Entity[] (paginated)
+            POST /
+                { AssetFolder (Partial) }
+                -> AssetFolder Entity
+            /{folderId}
+                GET /
+                    -> AssetFolder Entity
+                PUT /
+                    { AssetFolder (Partial) }
+                    -> AssetFolder Entity
+                GET /assets
+                    (? orderBy)
+                    (? direction)
+                    (? pageSize)
+                    (? pageNumber)
+                    -> Asset Entity[] (paginated)
