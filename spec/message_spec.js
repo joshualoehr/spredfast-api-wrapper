@@ -121,6 +121,10 @@ describe('A Message', function() {
         expect(self.fn).toThrowError(OptionError, /imagePath/);
         self.options.content.imagePath = '/Users/jloehr/Downloads/image.jpg';
         expect(self.fn).not.toThrowError(OptionError, /imagePath/);
+        self.options.content.caption = new Array(141).join('.');
+        expect(self.fn).toThrowError(ContentError, /Tweet text/);
+        self.options.content.caption = new Array(118).join('.');
+        expect(self.fn).not.toThrowError(ContentError, /Tweet text/);
         expect(self.fn).not.toThrow();
     });
 });
