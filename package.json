@@ -2,7 +2,7 @@
   "name": "spredfast_api",
   "version": "1.1.0",
   "description": "A wrapper library for the Spredfast RESTful API",
-  "main": "service.js",
+  "main": "lib/spredfast.js",
   "scripts": {
     "test": "jasmine"
   },
@@ -11,7 +11,6 @@
     "jasmine": "~2.3.0",
     "karma": "~0.13.9",
     "nock": "~2.10.0",
-    "q": "~1.4.1",
     "unirest": "~0.4.2",
     "yuidocjs": "~0.9.0"
   },
