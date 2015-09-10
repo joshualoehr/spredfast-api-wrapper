@@ -87,7 +87,7 @@
 
 
         <div class="foundat">
-            Defined in: <a href="../files/lib_api_connection.js.html#l6"><code>lib&#x2F;api&#x2F;connection.js:6</code></a>
+            Defined in: <a href="../files/lib_api_connection.js.html#l10"><code>lib&#x2F;api&#x2F;connection.js:10</code></a>
         </div>
 
             Module: <a href="../modules/Spredfast.html">Spredfast</a>
@@ -126,7 +126,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l6"><code>lib&#x2F;api&#x2F;connection.js:6</code></a>
+        <a href="../files/lib_api_connection.js.html#l10"><code>lib&#x2F;api&#x2F;connection.js:10</code></a>
         </p>
 
 
@@ -158,8 +158,8 @@ accessToken property</p>
                                     <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
 
                                 <div class="param-description">
-                                    <p>The OAuth accessToken unique to the currently
-authenticated user.</p>
+                                    <p>The OAuth accessToken unique to the
+currently authenticated user.</p>
 
                                 </div>
 
@@ -173,7 +173,8 @@ authenticated user.</p>
 
 
                     <div class="param-description">
-                        <p>Flag to toggle logging output from this connection. Defaults to false.</p>
+                        <p>Flag to toggle logging output from this connection.
+Defaults to false.</p>
 
                     </div>
 
@@ -187,7 +188,7 @@ authenticated user.</p>
             <h4>Example:</h4>
 
             <div class="example-content">
-                <pre class="code prettyprint"><code>// Creating a Connection from an OAuth Server authentication flow (using ExpressJS)
+                <pre class="code prettyprint"><code>// Creating a Connection from an OAuth Server flow (using ExpressJS)
 var express = require('express');
 
 var oauth = spredfast.OAuth.Server({
@@ -320,7 +321,7 @@ var conn = new spredfast.Connection(oauth);</code></pre>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l305"><code>lib&#x2F;api&#x2F;connection.js:305</code></a>
+        <a href="../files/lib_api_connection.js.html#l321"><code>lib&#x2F;api&#x2F;connection.js:321</code></a>
         </p>
 
 
@@ -449,7 +450,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l196"><code>lib&#x2F;api&#x2F;connection.js:196</code></a>
+        <a href="../files/lib_api_connection.js.html#l206"><code>lib&#x2F;api&#x2F;connection.js:206</code></a>
         </p>
 
 
@@ -457,7 +458,8 @@ conn.getCompanies(function(err, companies) {
     </div>
 
     <div class="description">
-        <p>Method to retrieve the available companies for the currently authenticated user.
+        <p>Method to retrieve the available companies for the currently authenticated
+user.
 The list of companies is passed to the callback function as a map with
 company names as keys and the company entity objects as values.</p>
 
@@ -528,7 +530,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l232"><code>lib&#x2F;api&#x2F;connection.js:232</code></a>
+        <a href="../files/lib_api_connection.js.html#l243"><code>lib&#x2F;api&#x2F;connection.js:243</code></a>
         </p>
 
 
@@ -536,7 +538,8 @@ conn.getCompanies(function(err, companies) {
     </div>
 
     <div class="description">
-        <p>Method to retrieve the available initiatives for the currently authenticated user.
+        <p>Method to retrieve the available initiatives for the currently
+authenticated user.
 The list of initiatives is passed to the callback function as a map with
 initiative names as keys and the initiative entity objects as values.</p>
 <p>The API server will return paginated results. Pagination can be configured
@@ -554,7 +557,8 @@ with the options parameter of this method.</p>
 
 
                     <div class="param-description">
-                        <p>The company containing the initiatives to be retrieved.</p>
+                        <p>The company containing the initiatives to be
+retrieved.</p>
 
                     </div>
 
@@ -577,7 +581,8 @@ with the options parameter of this method.</p>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
-                                    <p>The number of initiatives the server will
+                                    <p>The number of initiatives the server
+will
 return per page. Must be between 0 and 100 (exclusive), defaults to 20.</p>
 
                                 </div>
@@ -589,8 +594,8 @@ return per page. Must be between 0 and 100 (exclusive), defaults to 20.</p>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
-                                    <p>Zero based index of the page of values
-to return. Must be &gt;= 0, defaults to 0.</p>
+                                    <p>Zero based index of the page of
+values to return. Must be &gt;= 0, defaults to 0.</p>
 
                                 </div>
 
@@ -637,11 +642,11 @@ conn.getCompanies(function(err, companies) {
     conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {
         if (err) return console.error(err);
 
-        for (var key in initiatives) {
-            console.log(initiatives[key]);
-        }
-    });
-});</code></pre>
+          for (var key in initiatives) {
+              console.log(initiatives[key]);
+          }
+      });
+  });</code></pre>
 
             </div>
         </div>
@@ -667,7 +672,7 @@ conn.getCompanies(function(err, companies) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l171"><code>lib&#x2F;api&#x2F;connection.js:171</code></a>
+        <a href="../files/lib_api_connection.js.html#l181"><code>lib&#x2F;api&#x2F;connection.js:181</code></a>
         </p>
 
 
@@ -740,7 +745,7 @@ conn.getUserEmail(function(err, email) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l468"><code>lib&#x2F;api&#x2F;connection.js:468</code></a>
+        <a href="../files/lib_api_connection.js.html#l487"><code>lib&#x2F;api&#x2F;connection.js:487</code></a>
         </p>
 
 
@@ -810,7 +815,7 @@ as well as a reference to the company for which the privileges apply.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l386"><code>lib&#x2F;api&#x2F;connection.js:386</code></a>
+        <a href="../files/lib_api_connection.js.html#l404"><code>lib&#x2F;api&#x2F;connection.js:404</code></a>
         </p>
 
 
@@ -837,7 +842,8 @@ the message is actually published
 
 
                     <div class="param-description">
-                        <p>The <a href="../classes/Message.html" class="crosslink">Message</a> object to be published.</p>
+                        <p>The <a href="../classes/Message.html" class="crosslink">Message</a> object
+to be published.</p>
 
                     </div>
 
@@ -872,7 +878,7 @@ conn.getCompanies(function(err, companies) {
     conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {
         conn.getAccounts(initiatives['Marketing'], function(err, accounts)) {
             var targetAccounts = Object.keys(accounts).map(function(key) {
-                if (accounts[key].service === spredfast.services.FACEBOOK) {
+                if (accounts[key].service === spredfast.Services.FACEBOOK) {
                     return accounts[key];
                 }
             });
@@ -880,10 +886,10 @@ conn.getCompanies(function(err, companies) {
             var msg = new spredfast.Message({
                 company: companies['Planet Express'],
                 initiative: initiatives['Marketing'],
-                service: spredfast.services.FACEBOOK,
+                service: spredfast.Services.FACEBOOK,
                 accounts: targetAccounts,
                 content: {
-                    sfEntityType: spredfast.contentTypes.STATUS,
+                    sfEntityType: spredfast.ContentTypes.STATUS,
                     text: 'Here is my status text'
                },
                callbacks: [
@@ -934,7 +940,7 @@ conn.publish(msg, function(err, res) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l94"><code>lib&#x2F;api&#x2F;connection.js:94</code></a>
+        <a href="../files/lib_api_connection.js.html#l100"><code>lib&#x2F;api&#x2F;connection.js:100</code></a>
         </p>
 
 
@@ -956,7 +962,8 @@ conn.publish(msg, function(err, res) {
 
 
                     <div class="param-description">
-                        <p>The API endpoint to be targeted by the HTTP request.</p>
+                        <p>The API endpoint to be targeted by the HTTP
+request.</p>
 
                     </div>
 
@@ -967,8 +974,8 @@ conn.publish(msg, function(err, res) {
 
 
                     <div class="param-description">
-                        <p>The HTTP method to use for this request. Must be either
-'GET' or 'POST' (case-insensitive).</p>
+                        <p>The HTTP method to use for this request. Must be
+either 'GET' or 'POST' (case-insensitive).</p>
 
                     </div>
 
@@ -991,10 +998,9 @@ conn.publish(msg, function(err, res) {
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
-                                    <p>An optional object whose properties correspond
-to query parameters that will be sent with this request. See
-<a href="../files/lib_api_connection.js.html#l286">getInitiatives</a>
-for a usage example.</p>
+                                    <p>An optional object whose properties
+correspond to query parameters that will be sent with this request. See
+<a href="../files/lib_api_connection.js.html#l286">getInitiatives</a> for a usage example.</p>
 
                                 </div>
 
@@ -1005,7 +1011,8 @@ for a usage example.</p>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
-                                    <p>An optional Content-Type header value (e.g. 'application/json').</p>
+                                    <p>An optional Content-Type header value
+(e.g. 'application/json').</p>
 
                                 </div>
 
@@ -1016,7 +1023,8 @@ for a usage example.</p>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
-                                    <p>An optional post body object to send with the request (e.g. form data).</p>
+                                    <p>An optional post body object to send with
+the request (e.g. form data).</p>
 
                                 </div>
 
@@ -1030,9 +1038,9 @@ for a usage example.</p>
 
 
                     <div class="param-description">
-                        <p>The callback function called with an error returned
-by the API server (or null if none exists) and the response body of the API call, or
-null if the response is undefined.</p>
+                        <p>The callback function called with an error
+returned by the API server (or null if none exists) and the response body
+of the API call, or null if the response is undefined.</p>
 
                     </div>
 
@@ -1099,7 +1107,7 @@ conn.request('v1/me', 'post', options, function(err, response) {
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l67"><code>lib&#x2F;api&#x2F;connection.js:67</code></a>
+        <a href="../files/lib_api_connection.js.html#l73"><code>lib&#x2F;api&#x2F;connection.js:73</code></a>
         </p>
 
 
@@ -1125,7 +1133,7 @@ QA API (for now).</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l85"><code>lib&#x2F;api&#x2F;connection.js:85</code></a>
+        <a href="../files/lib_api_connection.js.html#l91"><code>lib&#x2F;api&#x2F;connection.js:91</code></a>
         </p>
 
 
@@ -1152,7 +1160,7 @@ QA API (for now).</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l56"><code>lib&#x2F;api&#x2F;connection.js:56</code></a>
+        <a href="../files/lib_api_connection.js.html#l61"><code>lib&#x2F;api&#x2F;connection.js:61</code></a>
         </p>
 
 
@@ -1177,7 +1185,7 @@ QA API (for now).</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_connection.js.html#l76"><code>lib&#x2F;api&#x2F;connection.js:76</code></a>
+        <a href="../files/lib_api_connection.js.html#l82"><code>lib&#x2F;api&#x2F;connection.js:82</code></a>
         </p>
 
 

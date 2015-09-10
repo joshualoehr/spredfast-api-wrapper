@@ -97,7 +97,7 @@
 function OptionError(message) {
     this.name = &#x27;OptionError&#x27;;
     this.message = message || &#x27;Invalid options&#x27;;
-    //this.stack = (new Error()).stack;
+    this.stack = (new Error()).stack;
 }
 OptionError.prototype = Object.create(Error.prototype);
 OptionError.prototype.constructor = OptionError;
@@ -115,7 +115,7 @@ OptionError.prototype.constructor = OptionError;
 function ContentError(message) {
     this.name = &#x27;ContentError&#x27;;
     this.message = message || &#x27;Invalid Message content&#x27;;
-    //this.stack = (new Error()).stack;
+    this.stack = (new Error()).stack;
 }
 ContentError.prototype = Object.create(Error.prototype);
 ContentError.prototype.constructor = ContentError;

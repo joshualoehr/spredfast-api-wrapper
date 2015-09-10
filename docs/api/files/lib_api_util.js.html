@@ -86,16 +86,12 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var fs = require(&#x27;fs&#x27;);
-var path = require(&#x27;path&#x27;);
+var fs = require(&#x27;fs&#x27;),
+    path = require(&#x27;path&#x27;),
+    errors = require(&#x27;./errors.js&#x27;);
 
-var errors = require(&#x27;./errors.js&#x27;);
-var OptionError = errors.OptionError;
-var ContentError = errors.ContentError;
-
-var config = path.join(__dirname, &#x27;../config/oauth.json&#x27;);
-
-var ports = [];
+var OptionError = errors.OptionError, // eslint-disable-line one-var
+    config = path.join(__dirname, &#x27;../config/oauth.json&#x27;);
 
 /**
 * Class containing utility functions.
@@ -123,10 +119,9 @@ module.exports = {
     validateOptions: function(options, required, customValidate) {
         if (!options)
             return new OptionError(&#x27;No options provided.&#x27;);
-        var optionKeys = Object.keys(options);
         for (var i = 0; i &lt; required.length; i++) {
             if (!Object.getOwnPropertyDescriptor(options, required[i])) {
-                return new OptionError(&#x27;Option property &quot;&#x27;+required[i]+&#x27;&quot; is required.&#x27;);
+                return new OptionError(&#x27;Option property &quot;&#x27; + required[i] + &#x27;&quot; is required.&#x27;);
             }
         }
 
@@ -169,9 +164,8 @@ module.exports = {
     * @return {String} The variable&#x27;s type.
     */
     getType: function(foo) {
-        var type = &#x27;&#x27;;
+        var type = &#x27;&#x27;, barType = null;
         if (Array.isArray(foo)) {
-            var barType = null;
             foo.forEach(function(bar) {
                 if (!barType) barType = bar === null ? &#x27;null&#x27; : typeof bar;
                 else if (barType !== typeof bar) barType = &#x27;multi&#x27;;
@@ -194,9 +188,9 @@ module.exports = {
     * @param {String} [path] The file path to the JSON file in which the OAuth
     * object should be written. Defaults to &#x60;lib/config/config.json&#x60;.
     */
-    writeOAuthCreds: function(oauth, path) {
-        var configFilepath = path ? path : config;
-        var data = fs.readFileSync(configFilepath, &#x27;utf-8&#x27;);
+    writeOAuthCreds: function(oauth, filepath) {
+        var configFilepath = filepath ? filepath : config,
+            data = fs.readFileSync(configFilepath, &#x27;utf-8&#x27;);
         if (data) {
             data = JSON.parse(data);
         } else {
@@ -225,14 +219,16 @@ module.exports = {
     * object should be read. Defaults to &#x60;lib/config/config.json&#x60;.
     * @return {Object} The completed OAuth object.
     */
-    readOAuthCreds: function(user, path) {
-        var configFilepath = path ? path : config;
-        var data = fs.readFileSync(configFilepath, &#x27;utf-8&#x27;);
+    readOAuthCreds: function(user, filepath) {
+        var configFilepath = filepath ? filepath : config,
+            data = fs.readFileSync(configFilepath, &#x27;utf-8&#x27;),
+            oauth;
+
         if (!data) return null;
 
         data = JSON.parse(data);
 
-        var oauth = Object.getOwnPropertyDescriptor(data, user);
+        oauth = Object.getOwnPropertyDescriptor(data, user);
         return oauth ? JSON.parse(oauth.value) : null;
     },
 
@@ -263,7 +259,7 @@ module.exports = {
     */
     fileSizeInMegaBytes: function(filePath) {
         if (!filePath) return 0;
-        return fs.statSync(filePath)[&#x27;size&#x27;] / 1000000.0;
+        return fs.statSync(filePath).size / 1000000.0;
     }
 };
 

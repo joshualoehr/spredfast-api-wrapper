@@ -96,8 +96,9 @@ module.exports = {
     Message: require(&#x27;./api/message.js&#x27;),
     OAuth: require(&#x27;./api/oauth.js&#x27;)
 };
-module.exports.services = module.exports.Message.services;
-module.exports.contentTypes = module.exports.Message.contentTypes;
+module.exports.ContentTypes = module.exports.Message.ContentTypes;
+module.exports.HttpMethods = module.exports.Connection.HttpMethods;
+module.exports.Services = module.exports.Message.Services;
 
     </pre>
 </div>

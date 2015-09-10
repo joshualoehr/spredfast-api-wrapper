@@ -86,10 +86,14 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var unirest = require(&#x27;unirest&#x27;);
-var util = require(&#x27;./util.js&#x27;);
+var unirest = require(&#x27;unirest&#x27;),
+    util = require(&#x27;./util.js&#x27;);
 
-var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;,&#x27;put&#x27;];
+var HttpMethods = { // eslint-disable-line one-var
+    GET: &#x27;get&#x27;,
+    POST: &#x27;post&#x27;,
+    PUT: &#x27;put&#x27;
+};
 
 /**
 * A class containing methods that abstract out common API uses.
@@ -98,13 +102,14 @@ var supportedMethods = [&#x27;get&#x27;,&#x27;post&#x27;,&#x27;put&#x27;];
 * @constructor
 * @param {Object} oauth A completed OAuth object, i.e. one with a defined
 * accessToken property
-* @param {String} oauth.accessToken The OAuth accessToken unique to the currently
-* authenticated user.
-* @param {Boolean} [log] Flag to toggle logging output from this connection. Defaults to false.
+* @param {String} oauth.accessToken The OAuth accessToken unique to the
+* currently authenticated user.
+* @param {Boolean} [log] Flag to toggle logging output from this connection.
+* Defaults to false.
 * @requires unirest
 * @requires util.js
 * @example
-*     // Creating a Connection from an OAuth Server authentication flow (using ExpressJS)
+*     // Creating a Connection from an OAuth Server flow (using ExpressJS)
 *     var express = require(&#x27;express&#x27;);
 *
 *     var oauth = spredfast.OAuth.Server({
@@ -149,7 +154,8 @@ function Connection(oauth, log) {
     */
     this.oauth = oauth;
     if (!oauth || !oauth.accessToken) {
-        throw new Error(&#x27;Must provide an OAuth2.0 Access Token to create a new Connection&#x27;);
+        throw new Error(&#x27;Must provide an OAuth2.0 Access Token to create a &#x27;
+            + &#x27;new Connection&#x27;);
     }
 
     /**
@@ -183,19 +189,22 @@ function Connection(oauth, log) {
     * General-purpose method for making requests against the Spredfast API.
     *
     * @method request
-    * @param {String} endpoint The API endpoint to be targeted by the HTTP request.
-    * @param {String} method The HTTP method to use for this request. Must be either
-    * &#x27;GET&#x27; or &#x27;POST&#x27; (case-insensitive).
+    * @param {String} endpoint The API endpoint to be targeted by the HTTP
+    * request.
+    * @param {String} method The HTTP method to use for this request. Must be
+    * either &#x27;GET&#x27; or &#x27;POST&#x27; (case-insensitive).
     * @param {Object} [options] Additional options for the HTTP request.
-    * @param {Object} [options.query] An optional object whose properties correspond
-    * to query parameters that will be sent with this request. See
-    * {{#sourceLink &quot;lib_api_connection.js.html#l286&quot; &quot;getInitiatives&quot;}}{{/sourceLink}}
-    * for a usage example.
-    * @param {String} [options.type] An optional Content-Type header value (e.g. &#x27;application/json&#x27;).
-    * @param {Object} [options.send] An optional post body object to send with the request (e.g. form data).
-    * @param {Function} [callback] The callback function called with an error returned
-    * by the API server (or null if none exists) and the response body of the API call, or
-    * null if the response is undefined.
+    * @param {Object} [options.query] An optional object whose properties
+    * correspond to query parameters that will be sent with this request. See
+    * {{#sourceLink &quot;lib_api_connection.js.html#l286&quot; &quot;getInitiatives&quot;}}
+    * {{/sourceLink}} for a usage example.
+    * @param {String} [options.type] An optional Content-Type header value
+    * (e.g. &#x27;application/json&#x27;).
+    * @param {Object} [options.send] An optional post body object to send with
+    * the request (e.g. form data).
+    * @param {Function} [callback] The callback function called with an error
+    * returned by the API server (or null if none exists) and the response body
+    * of the API call, or null if the response is undefined.
     * @throws {Error} If the method argument is unsupported.
     * @example
     *     var conn = new spredfast.Connection(oauth);
@@ -225,17 +234,19 @@ function Connection(oauth, log) {
     *     });
     */
     this.request = function(endpoint, method, options, callback) {
+        var unirestFn, req;
+
         if (typeof options === &#x27;function&#x27;) {
             callback = options;
         }
 
         method = method.toLowerCase();
-        if (supportedMethods.indexOf(method) === -1) {
+        if (!util.validEnum(HttpMethods, method)) {
             throw new Error(&#x27;Unsupported http method&#x27;);
         }
-        var unirestFn = Object.getOwnPropertyDescriptor(unirest, method).value;
+        unirestFn = Object.getOwnPropertyDescriptor(unirest, method).value;
 
-        var req = unirestFn(this.baseUri + endpoint);
+        req = unirestFn(this.baseUri + endpoint);
         if (this.proxy) req.proxy(this.proxy);
         req.headers({ Authorization: &#x27;Bearer &#x27; + this.oauth.accessToken });
 
@@ -244,14 +255,13 @@ function Connection(oauth, log) {
         if (options.send) req.send(options.send);
         if (options.multipart) req.multipart(options.multipart);
 
-        if (options.multipart) {
-            console.log(&#x27;Message JSON:&#x27;);
-            console.log(options.multipart[0].body);
-        }
-
         req.end(function(res) {
             if (log) console.log(method.toUpperCase() + &#x27; &#x27; + endpoint);
             var err = res.error;
+            if (res.body &amp;&amp; res.body.status &amp;&amp; res.body.status.error) {
+                err = new Error(res.code + &#x27;: &#x27; + res.body.status.error.code
+                    + &#x27; - &#x27; + res.body.status.error.message);
+            }
             callback(err ? err : null, res ? res.body : null);
         });
     }
@@ -282,7 +292,8 @@ function Connection(oauth, log) {
     }
 
     /**
-    * Method to retrieve the available companies for the currently authenticated user.
+    * Method to retrieve the available companies for the currently authenticated
+    * user.
     * The list of companies is passed to the callback function as a map with
     * company names as keys and the company entity objects as values.
     *
@@ -318,7 +329,8 @@ function Connection(oauth, log) {
     }
 
     /**
-    * Method to retrieve the available initiatives for the currently authenticated user.
+    * Method to retrieve the available initiatives for the currently
+    * authenticated user.
     * The list of initiatives is passed to the callback function as a map with
     * initiative names as keys and the initiative entity objects as values.
     *
@@ -326,12 +338,14 @@ function Connection(oauth, log) {
     * with the options parameter of this method.
     *
     * @method getInitiatives
-    * @param {Object} company The company containing the initiatives to be retrieved.
+    * @param {Object} company The company containing the initiatives to be
+    * retrieved.
     * @param {Object} [options] Additional options for the HTTP request.
-    * @param {number} [options.pageSize] The number of initiatives the server will
+    * @param {number} [options.pageSize] The number of initiatives the server
+    * will
     * return per page. Must be between 0 and 100 (exclusive), defaults to 20.
-    * @param {number} [options.pageNumber] Zero based index of the page of values
-    * to return. Must be &gt;= 0, defaults to 0.
+    * @param {number} [options.pageNumber] Zero based index of the page of
+    * values to return. Must be &gt;= 0, defaults to 0.
     * @param {String} [options.nameFilter] Case-insensitive search within the
     * initiative name for the provided string. If not provided, all initiatives
     * are returned.
@@ -344,22 +358,24 @@ function Connection(oauth, log) {
     *         conn.getInitiatives(companies[&#x27;Planet Express&#x27;], function(err, initiatives) {
     *             if (err) return console.error(err);
     *
-    *             for (var key in initiatives) {
-    *                 console.log(initiatives[key]);
-    *             }
-    *         });
-    *     });
+    *               for (var key in initiatives) {
+    *                   console.log(initiatives[key]);
+    *               }
+    *           });
+    *       });
     *
     * @TODO support pagination
     */
     this.getInitiatives = function(company, options, callback) {
+        var query, endpoint;
+
         if (typeof options === &#x27;function&#x27;) {
             callback = options;
             options = undefined;
         }
 
         try {
-            var endpoint = company.environment + &#x27;/v1/company/&#x27;
+            endpoint = company.environment + &#x27;/v1/company/&#x27;
                             + company.id + &#x27;/initiative&#x27;;
         } catch (err) {
             // Catch missing properties on company object
@@ -367,7 +383,7 @@ function Connection(oauth, log) {
             return;
         }
 
-        var query = {};
+        query = {};
         if (options) {
             if (options.pageSize &amp;&amp; options.pageSize &gt; 0 &amp;&amp; options.pageSize &lt; 100) {
                 query.pageSize = options.pageSize;
@@ -425,13 +441,15 @@ function Connection(oauth, log) {
     * @TODO support pagination
     */
     this.getAccounts = function(company, initiative, options, callback) {
+        var query, endpoint;
+
         if (typeof options === &#x27;function&#x27;) {
             callback = options;
             options = undefined;
         }
 
         try {
-            var endpoint = company.environment + &#x27;/v1/company/&#x27;
+            endpoint = company.environment + &#x27;/v1/company/&#x27;
                         + company.id + &#x27;/initiative/&#x27; + initiative.id + &#x27;/accountset&#x27;;
         } catch (err) {
             // Catch missing properties on company and/or initiative
@@ -439,7 +457,7 @@ function Connection(oauth, log) {
             return;
         }
 
-        var query = {};
+        query = {};
         if (options) {
             if (options.pageSize &amp;&amp; options.pageSize &gt; 0 &amp;&amp; options.pageSize &lt; 100) {
                 query.pageSize = options.pageSize;
@@ -481,7 +499,8 @@ function Connection(oauth, log) {
     * (see {{#crossLink &quot;Message&quot;}}Message.callbacks{{/crossLink}}).
     *
     * @method publish
-    * @param {Object} msg The {{#crossLink &quot;Message&quot;}}{{/crossLink}} object to be published.
+    * @param {Object} msg The {{#crossLink &quot;Message&quot;}}{{/crossLink}} object
+    * to be published.
     * @param {Function} [callback] The optional callback function to be called
     * after the publish action has been sent to the API server. The callback is
     * passed any existing error (or null if none exists), and the body of the
@@ -493,7 +512,7 @@ function Connection(oauth, log) {
     *         conn.getInitiatives(companies[&#x27;Planet Express&#x27;], function(err, initiatives) {
     *             conn.getAccounts(initiatives[&#x27;Marketing&#x27;], function(err, accounts)) {
     *                 var targetAccounts = Object.keys(accounts).map(function(key) {
-    *                     if (accounts[key].service === spredfast.services.FACEBOOK) {
+    *                     if (accounts[key].service === spredfast.Services.FACEBOOK) {
     *                         return accounts[key];
     *                     }
     *                 });
@@ -501,10 +520,10 @@ function Connection(oauth, log) {
     *                 var msg = new spredfast.Message({
     *                     company: companies[&#x27;Planet Express&#x27;],
     *                     initiative: initiatives[&#x27;Marketing&#x27;],
-    *                     service: spredfast.services.FACEBOOK,
+    *                     service: spredfast.Services.FACEBOOK,
     *                     accounts: targetAccounts,
     *                     content: {
-    *                         sfEntityType: spredfast.contentTypes.STATUS,
+    *                         sfEntityType: spredfast.ContentTypes.STATUS,
     *                         text: &#x27;Here is my status text&#x27;
     *                    },
     *                    callbacks: [
@@ -523,10 +542,10 @@ function Connection(oauth, log) {
     *     });
     */
     this.publish = function(msg, callback) {
-        var endpoint = msg.company.environment + &#x27;/v1/company/&#x27; + msg.company.id
+        var endpoint, options;
+        endpoint = msg.company.environment + &#x27;/v1/company/&#x27; + msg.company.id
             + &#x27;/initiative/&#x27; + msg.initiative.id + &#x27;/message&#x27;;
 
-        var options;
         if (msg.content.sfEntityType === &#x27;Status&#x27;) {
             options = {
                 type: &#x27;application/json&#x27;,
@@ -563,8 +582,10 @@ function Connection(oauth, log) {
     * as well as a reference to the company for which the privileges apply.
     */
     this.getUserPrivileges = function(company, callback) {
+        var endpoint;
+
         try {
-            var endpoint = company.environment + &#x27;/v1/company/&#x27;
+            endpoint = company.environment + &#x27;/v1/company/&#x27;
                         + company.id + &#x27;/privilege&#x27;;
         } catch (err) {
             // Catch missing properties on company and/or initiative
@@ -577,16 +598,17 @@ function Connection(oauth, log) {
                 if (callback) callback(err, null);
                 return;
             }
-            var privileges = {
+            callback(null, {
                 company: company,
                 canPublish: res.data.canPublish,
                 canCreateLabels: res.data.canCreateLabels
-            }
-            callback(null, privileges);
+            });
         });
     }
 }
 
+HttpMethods = Object.freeze ? Object.freeze(HttpMethods) : HttpMethods;
+Connection.HttpMethods = HttpMethods;
 module.exports = Connection;
 
     </pre>
