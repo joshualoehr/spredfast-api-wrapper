@@ -86,10 +86,13 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var unirest = require(&#x27;unirest&#x27;);
-var util = require(&#x27;./util.js&#x27;);
+/* eslint camelcase:0 */
 
-var devMode = true;
+var unirest = require(&#x27;unirest&#x27;),
+    util = require(&#x27;./util.js&#x27;);
+
+var devMode = true, // eslint-disable-line one-var
+    oauth;
 
 /**
 * Builds the proper authorization URL based on which flow is being used.
@@ -99,18 +102,18 @@ var devMode = true;
 * @return {String} Redirect URL for user authorization step of the OAuth flow.
 * @private
 */
-var buildAuthUrl = function(oauth) {
-    var base = &#x27;https://&#x27; + (devMode ? &#x27;infra&#x27; : &#x27;&#x27;) + &#x27;login.spredfast.com/&#x27;;
-    var path = &#x27;v1/oauth/&#x27;;
+function buildAuthUrl(type) {
+    var base = &#x27;https://&#x27; + (devMode ? &#x27;infra&#x27; : &#x27;&#x27;) + &#x27;login.spredfast.com/&#x27;,
+        path = &#x27;v1/oauth/&#x27;;
 
-    if (oauth.type === &#x27;Password&#x27; || oauth.type === &#x27;Application&#x27;) {
+    if (type === &#x27;Password&#x27; || type === &#x27;Application&#x27;) {
         path += &#x27;token&#x27;;
-    } else if (oauth.type === &#x27;Server&#x27;) {
+    } else if (type === &#x27;Server&#x27;) {
         path += &#x27;authorize?response_type=code&#x27;;
     }
 
     return base + path;
-};
+}
 
 /**
 * A wrapper object for all OAuth information. Contains functions for authorizing
@@ -118,7 +121,7 @@ var buildAuthUrl = function(oauth) {
 *
 * @type Object
 */
-var oauth = {
+oauth = {
     /**
     * Initialization function. Sets all properties to null.
     *
@@ -155,7 +158,7 @@ var oauth = {
     * @TODO get Password and Application authentications working, if supported
     */
     authorize: function() {
-        var authUrl = buildAuthUrl(this);
+        var authUrl = buildAuthUrl(oauth.type);
         if (oauth.type === &#x27;Server&#x27;) {
             authUrl += &#x27;&amp;client_id=&#x27; + oauth.clientId;
             authUrl += &#x27;&amp;redirect_uri=&#x27; + oauth.redirectUri;
@@ -199,13 +202,15 @@ var oauth = {
     * error (or null if none exists), and the completed OAuth object, respectively.
     */
     getAccessToken: function(code, path, callback) {
+        var base = &#x27;https://&#x27; + (devMode ? &#x27;infra&#x27; : &#x27;&#x27;) + &#x27;login.spredfast.com/&#x27;
+            + &#x27;v1/oauth/token&#x27;;
+
         if (typeof path === &#x27;function&#x27;) {
             callback = path;
             path = null;
         }
+
         this.authCode = code;
-        var base = &#x27;https://&#x27; + (devMode ? &#x27;infra&#x27; : &#x27;&#x27;) + &#x27;login.spredfast.com/&#x27;;
-        base += &#x27;v1/oauth/token&#x27;;
         unirest.post(base)
         .send({
             grant_type: oauth.grantType,
@@ -220,7 +225,6 @@ var oauth = {
                 return;
             }
             oauth.accessToken = response.body.data.accessToken;
-            console.log(oauth);
             util.writeOAuthCreds(oauth, path);
             callback(err, oauth);
         });
@@ -335,7 +339,8 @@ module.exports = {
     * @param {Object} options Configuration options for initializing the OAuth flow.
     * @param {String} options.user The user&#x27;s email used to login to Conversations.
     * redirect the user after authorization.
-    * @return {Object} A completed OAuth object if found, otherwise a partially initialized OAuth object.
+    * @return {Object} A completed OAuth object if found, otherwise a partially
+    * initialized OAuth object.
     * @throws {OptionError} If one or more of the required options is not supplied.
     * @example
     *     var options = {

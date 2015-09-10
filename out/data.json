@@ -85,7 +85,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "lib/api/util.js",
-            "line": 12,
+            "line": 8,
             "description": "Provides the base Spredfast API module."
         }
     },
@@ -100,7 +100,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/connection.js",
-            "line": 6,
+            "line": 10,
             "description": "A class containing methods that abstract out common API uses.",
             "is_constructor": 1,
             "params": [
@@ -111,14 +111,14 @@
                     "props": [
                         {
                             "name": "accessToken",
-                            "description": "The OAuth accessToken unique to the currently\nauthenticated user.",
+                            "description": "The OAuth accessToken unique to the\ncurrently authenticated user.",
                             "type": "String"
                         }
                     ]
                 },
                 {
                     "name": "log",
-                    "description": "Flag to toggle logging output from this connection. Defaults to false.",
+                    "description": "Flag to toggle logging output from this connection.\nDefaults to false.",
                     "type": "Boolean",
                     "optional": true
                 }
@@ -128,7 +128,7 @@
                 "util.js"
             ],
             "example": [
-                "\n    // Creating a Connection from an OAuth Server authentication flow (using ExpressJS)\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>,\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);",
+                "\n    // Creating a Connection from an OAuth Server flow (using ExpressJS)\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>,\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);",
                 "\n    // Creating a Connection from an existing access token\n    var oauth = {\n        accessToken: <accessToken>\n    };\n    var conn = new spredfast.Connection(oauth);"
             ]
         },
@@ -172,7 +172,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/message.js",
-            "line": 23,
+            "line": 18,
             "description": "A class representing a Message that may be published by the Conversations API.\n\nValidation Rules:\n<ul>\n<li> Image size can be no larger than 1 GB.\n<li> All supplied accounts must belong to the same service (social network),\nand that service (network) must match the value supplied for the message's\nservice attribute.\n<li> Tweets can be no more than 140 characters long, without links. Twitter links\n(including the pic.twitter.com that is created when you publish a message with\nan image) add 22 characters to the total character count.\n<li> New labels can be created only if the user has sufficient privileges.\nLabels that already exist for the company can be added to messages, but creating\nnew labels requires the caller's UserPrivilege to include canCreateLabels.\n</ul>",
             "is_constructor": 1,
             "params": [
@@ -260,7 +260,6 @@
                 "type": "ReferenceError|TypeError|OptionError|ContentError"
             },
             "todo": [
-                "Allow additional 22 characters for image tweets",
                 "Validate labels"
             ]
         },
@@ -274,7 +273,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/oauth.js",
-            "line": 142,
+            "line": 146,
             "description": "Static class containing factory methods for specific OAuth flow types. <br/><br/>\n{{#oauthExample \"lib_api_connection.js.html#l286\" \"getInitiatives\"}}{{/oauthExample}}",
             "example": [
                 "\n    // Using ExpressJS\n    var express = require('express');\n\n    var oauth = spredfast.OAuth.Server({\n        user: <user>,\n        clientId: <clientID>,\n        clientSecret: <clientSecret>\n        redirectUri: 'http://localhost:3000/callback'\n    });\n\n    var app = express();\n    app.get('/', function(req, res) {\n         res.redirect(oauth.authorize());\n    });\n    app.get('/callback', function(req, res) {\n        oauth.getAccessToken(req.query.code, function(oauth) {\n            var conn = new spredfast.Connection(oauth);\n            doStuff(conn);\n        });\n        res.send();\n    });\n    app.listen(3000);"
@@ -291,7 +290,7 @@
             "extension_for": [],
             "module": "Spredfast",
             "file": "lib/api/util.js",
-            "line": 12,
+            "line": 8,
             "description": "Class containing utility functions.",
             "static": 1
         }
@@ -300,7 +299,7 @@
     "classitems": [
         {
             "file": "lib/api/connection.js",
-            "line": 49,
+            "line": 54,
             "description": "A reference to 'this' to sidestep scoping issues.",
             "type": "Object",
             "access": "private",
@@ -309,7 +308,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 56,
+            "line": 61,
             "description": "Stores the provided oauth argument.",
             "itemtype": "property",
             "name": "oauth",
@@ -320,7 +319,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 67,
+            "line": 73,
             "description": "The base URI for the API to be used by this connection. Defaults to the\nQA API (for now).",
             "itemtype": "property",
             "name": "baseUri",
@@ -329,7 +328,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 76,
+            "line": 82,
             "description": "Optional web proxy for HTTP requests.",
             "itemtype": "property",
             "name": "proxy",
@@ -339,7 +338,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 85,
+            "line": 91,
             "description": "Property to toggle logging output.",
             "itemtype": "property",
             "name": "logging",
@@ -349,19 +348,19 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 94,
+            "line": 100,
             "description": "General-purpose method for making requests against the Spredfast API.",
             "itemtype": "method",
             "name": "request",
             "params": [
                 {
                     "name": "endpoint",
-                    "description": "The API endpoint to be targeted by the HTTP request.",
+                    "description": "The API endpoint to be targeted by the HTTP\nrequest.",
                     "type": "String"
                 },
                 {
                     "name": "method",
-                    "description": "The HTTP method to use for this request. Must be either\n'GET' or 'POST' (case-insensitive).",
+                    "description": "The HTTP method to use for this request. Must be\neither 'GET' or 'POST' (case-insensitive).",
                     "type": "String"
                 },
                 {
@@ -372,19 +371,19 @@
                     "props": [
                         {
                             "name": "query",
-                            "description": "An optional object whose properties correspond\nto query parameters that will be sent with this request. See\n{{#sourceLink \"lib_api_connection.js.html#l286\" \"getInitiatives\"}}{{/sourceLink}}\nfor a usage example.",
+                            "description": "An optional object whose properties\ncorrespond to query parameters that will be sent with this request. See\n{{#sourceLink \"lib_api_connection.js.html#l286\" \"getInitiatives\"}}\n{{/sourceLink}} for a usage example.",
                             "type": "Object",
                             "optional": true
                         },
                         {
                             "name": "type",
-                            "description": "An optional Content-Type header value (e.g. 'application/json').",
+                            "description": "An optional Content-Type header value\n(e.g. 'application/json').",
                             "type": "String",
                             "optional": true
                         },
                         {
                             "name": "send",
-                            "description": "An optional post body object to send with the request (e.g. form data).",
+                            "description": "An optional post body object to send with\nthe request (e.g. form data).",
                             "type": "Object",
                             "optional": true
                         }
@@ -392,7 +391,7 @@
                 },
                 {
                     "name": "callback",
-                    "description": "The callback function called with an error returned\nby the API server (or null if none exists) and the response body of the API call, or\nnull if the response is undefined.",
+                    "description": "The callback function called with an error\nreturned by the API server (or null if none exists) and the response body\nof the API call, or null if the response is undefined.",
                     "type": "Function",
                     "optional": true
                 }
@@ -409,7 +408,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 171,
+            "line": 181,
             "description": "Method to retrieve the email of the currently authenticated user.",
             "itemtype": "method",
             "name": "getUserEmail",
@@ -428,8 +427,8 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 196,
-            "description": "Method to retrieve the available companies for the currently authenticated user.\nThe list of companies is passed to the callback function as a map with\ncompany names as keys and the company entity objects as values.",
+            "line": 206,
+            "description": "Method to retrieve the available companies for the currently authenticated\nuser.\nThe list of companies is passed to the callback function as a map with\ncompany names as keys and the company entity objects as values.",
             "itemtype": "method",
             "name": "getCompanies",
             "params": [
@@ -446,14 +445,14 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 232,
-            "description": "Method to retrieve the available initiatives for the currently authenticated user.\nThe list of initiatives is passed to the callback function as a map with\ninitiative names as keys and the initiative entity objects as values.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.",
+            "line": 243,
+            "description": "Method to retrieve the available initiatives for the currently\nauthenticated user.\nThe list of initiatives is passed to the callback function as a map with\ninitiative names as keys and the initiative entity objects as values.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.",
             "itemtype": "method",
             "name": "getInitiatives",
             "params": [
                 {
                     "name": "company",
-                    "description": "The company containing the initiatives to be retrieved.",
+                    "description": "The company containing the initiatives to be\nretrieved.",
                     "type": "Object"
                 },
                 {
@@ -464,13 +463,13 @@
                     "props": [
                         {
                             "name": "pageSize",
-                            "description": "The number of initiatives the server will\nreturn per page. Must be between 0 and 100 (exclusive), defaults to 20.",
+                            "description": "The number of initiatives the server\nwill\nreturn per page. Must be between 0 and 100 (exclusive), defaults to 20.",
                             "type": "Number",
                             "optional": true
                         },
                         {
                             "name": "pageNumber",
-                            "description": "Zero based index of the page of values\nto return. Must be >= 0, defaults to 0.",
+                            "description": "Zero based index of the page of\nvalues to return. Must be >= 0, defaults to 0.",
                             "type": "Number",
                             "optional": true
                         },
@@ -489,7 +488,7 @@
                 }
             ],
             "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            if (err) return console.error(err);\n\n            for (var key in initiatives) {\n                console.log(initiatives[key]);\n            }\n        });\n    });"
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            if (err) return console.error(err);\n\n              for (var key in initiatives) {\n                  console.log(initiatives[key]);\n              }\n          });\n      });"
             ],
             "todo": [
                 "support pagination"
@@ -498,7 +497,7 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 305,
+            "line": 321,
             "description": "Method to retrieve the available accounts for the currently authenticated user.\nThe list of accounts is passed to the callback function as a map with\naccount names as keys and the account entity objects as values.\n\nThe API server will return paginated results. Pagination can be configured\nwith the options parameter of this method.",
             "itemtype": "method",
             "name": "getAccounts",
@@ -545,14 +544,14 @@
         },
         {
             "file": "lib/api/connection.js",
-            "line": 386,
+            "line": 404,
             "description": "Method to publish a message via the Conversations API, through the company,\ninitiative, and accounts specified in the provided Message object.\n\nNote that the callback function provided here is called when the method is\ndone communicating the publication request to the API server, NOT when\nthe message is actually published\n(see {{#crossLink \"Message\"}}Message.callbacks{{/crossLink}}).",
             "itemtype": "method",
             "name": "publish",
             "params": [
                 {
                     "name": "msg",
-                    "description": "The {{#crossLink \"Message\"}}{{/crossLink}} object to be published.",
+                    "description": "The {{#crossLink \"Message\"}}{{/crossLink}} object\nto be published.",
                     "type": "Object"
                 },
                 {
@@ -563,13 +562,13 @@
                 }
             ],
             "example": [
-                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            conn.getAccounts(initiatives['Marketing'], function(err, accounts)) {\n                var targetAccounts = Object.keys(accounts).map(function(key) {\n                    if (accounts[key].service === spredfast.services.FACEBOOK) {\n                        return accounts[key];\n                    }\n                });\n\n                var msg = new spredfast.Message({\n                    company: companies['Planet Express'],\n                    initiative: initiatives['Marketing'],\n                    service: spredfast.services.FACEBOOK,\n                    accounts: targetAccounts,\n                    content: {\n                        sfEntityType: spredfast.contentTypes.STATUS,\n                        text: 'Here is my status text'\n                   },\n                   callbacks: [\n                       function(req, res) {\n                           console.log('callback');\n                       }\n                   ]\n                });\n            });\n        });\n    });\n\n    conn.publish(msg, function(err, res) {\n        if (err) return console.error(err);\n        else console.log('Message published successfully.');\n    });"
+                "\n    var conn = new spredfast.Connection(oauth);\n\n    conn.getCompanies(function(err, companies) {\n        conn.getInitiatives(companies['Planet Express'], function(err, initiatives) {\n            conn.getAccounts(initiatives['Marketing'], function(err, accounts)) {\n                var targetAccounts = Object.keys(accounts).map(function(key) {\n                    if (accounts[key].service === spredfast.Services.FACEBOOK) {\n                        return accounts[key];\n                    }\n                });\n\n                var msg = new spredfast.Message({\n                    company: companies['Planet Express'],\n                    initiative: initiatives['Marketing'],\n                    service: spredfast.Services.FACEBOOK,\n                    accounts: targetAccounts,\n                    content: {\n                        sfEntityType: spredfast.ContentTypes.STATUS,\n                        text: 'Here is my status text'\n                   },\n                   callbacks: [\n                       function(req, res) {\n                           console.log('callback');\n                       }\n                   ]\n                });\n            });\n        });\n    });\n\n    conn.publish(msg, function(err, res) {\n        if (err) return console.error(err);\n        else console.log('Message published successfully.');\n    });"
             ],
             "class": "Connection"
         },
         {
             "file": "lib/api/connection.js",
-            "line": 468,
+            "line": 487,
             "description": "Method to retrieve publishing privileges for the currently authenticated user.",
             "itemtype": "method",
             "name": "getUserPrivileges",
@@ -589,7 +588,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 144,
+            "line": 138,
             "description": "Generates the raw JSON to send to the API server.",
             "itemtype": "method",
             "name": "build",
@@ -601,7 +600,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 169,
+            "line": 163,
             "description": "If the message is of type ImageShare, this function will provide the\nraw image data needed to send over HTTP.",
             "itemtype": "method",
             "name": "imageData",
@@ -613,7 +612,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 185,
+            "line": 179,
             "description": "Custom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
             "type": "Function",
             "access": "private",
@@ -632,7 +631,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 282,
+            "line": 284,
             "description": "Dynamically sets up an ExpressJS server with a map of callback functions that\nwill be called if and when the Spredfast API server sends an HTTP request\nto this callback server with a valid function ID.",
             "itemtype": "method",
             "name": "setupCallback",
@@ -646,7 +645,7 @@
                 }
             ],
             "return": {
-                "description": "The URI that the Spredfast API should notify to execute the callback function.",
+                "description": "The URI that the Spredfast API should notify to execute the\ncallback function.",
                 "type": "String"
             },
             "todo": [
@@ -656,7 +655,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 6,
+            "line": 9,
             "description": "Builds the proper authorization URL based on which flow is being used.",
             "type": "Function",
             "params": [
@@ -676,14 +675,14 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 27,
+            "line": 30,
             "description": "A wrapper object for all OAuth information. Contains functions for authorizing\nand retrieving access tokens.",
             "type": "Object",
             "class": "OAuth"
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 34,
+            "line": 37,
             "description": "Initialization function. Sets all properties to null.",
             "itemtype": "method",
             "name": "init",
@@ -694,7 +693,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 56,
+            "line": 59,
             "description": "Determines and executes the appropriate authorization steps based on the\nthe type of OAuth flow. Currently, 'Server' is the only functioning type.\n'Password' and 'Application' flow types are WIP.\n\nFor 'Server' flow types, this function returns a URL to which the user\nshould be redirected. Upon successful authorization, the user will be\nredirected to the redirectUri specified in the creation of this OAuth flow.",
             "itemtype": "method",
             "name": "authorize",
@@ -710,7 +709,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 100,
+            "line": 103,
             "description": "Uses the authorization code provided by the API to receive an access token.\nUpon retrieval, saves the OAuth object by writing to a JSON file.",
             "itemtype": "method",
             "name": "getAccessToken",
@@ -736,7 +735,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 186,
+            "line": 190,
             "description": "The 'Server' OAuth flow type. Requires a username, clientId, clientSecret,\nand redirectUri.",
             "itemtype": "method",
             "name": "Server",
@@ -784,7 +783,7 @@
         },
         {
             "file": "lib/api/oauth.js",
-            "line": 234,
+            "line": 238,
             "description": "Method to retrieve an existing OAuth object that has been saved to a JSON file.\nIf the OAuth object cannot be retrieved, this method will instead initialize a\nnew OAuth flow from the provided alternative method.\n\nOAuth objects are stored and retrieved using the options.user (user email)\nproperty as a unique key.\n\nNote that while this method only requires a 'user' option be provided, if the\nalternative OAuth method is called it will still require its usual required\noptions.",
             "itemtype": "method",
             "name": "Existing",
@@ -803,7 +802,7 @@
                 }
             ],
             "return": {
-                "description": "A completed OAuth object if found, otherwise a partially initialized OAuth object.",
+                "description": "A completed OAuth object if found, otherwise a partially\ninitialized OAuth object.",
                 "type": "Object"
             },
             "throws": {
@@ -822,7 +821,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 20,
+            "line": 16,
             "description": "Validates an options object by checking for required properties. If an\noptional validation function is provided, this method will check against\nthat as well.",
             "itemtype": "method",
             "name": "validateOptions",
@@ -853,7 +852,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 48,
+            "line": 43,
             "description": "Checks the type of a variable against a list of accepted types, and throws\nan error if the type is not acceptable.",
             "itemtype": "method",
             "name": "checkType",
@@ -883,7 +882,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 73,
+            "line": 68,
             "description": "A slightly more robust way of determining the type of a variable, which\nwill also specify if the variable is an array, as well as the types of the\narray's elements.",
             "itemtype": "method",
             "name": "getType",
@@ -902,7 +901,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 100,
+            "line": 94,
             "description": "Writes the result of the OAuth authorization flow to a JSON file.",
             "itemtype": "method",
             "name": "writeOAuthCreds",
@@ -924,7 +923,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 128,
+            "line": 122,
             "description": "Reads saved OAuth info from a JSON file, and returns the OAuth object\nwhich corresponds to the given user.",
             "itemtype": "method",
             "name": "readOAuthCreds",
@@ -950,7 +949,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 151,
+            "line": 147,
             "description": "Determines if the value provided is equal to one or more of a given\nenum object's values.",
             "itemtype": "method",
             "name": "validEnum",
@@ -970,7 +969,7 @@
         },
         {
             "file": "lib/api/util.js",
-            "line": 168,
+            "line": 164,
             "description": "Convenience function to return a file's size in MB",
             "itemtype": "method",
             "name": "fileSizeInMegaBytes",
@@ -992,19 +991,19 @@
     "warnings": [
         {
             "message": "Missing item type\nA reference to 'this' to sidestep scoping issues.",
-            "line": " lib/api/connection.js:49"
+            "line": " lib/api/connection.js:54"
         },
         {
             "message": "Missing item type\nCustom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
-            "line": " lib/api/message.js:185"
+            "line": " lib/api/message.js:179"
         },
         {
             "message": "Missing item type\nBuilds the proper authorization URL based on which flow is being used.",
-            "line": " lib/api/oauth.js:6"
+            "line": " lib/api/oauth.js:9"
         },
         {
             "message": "Missing item type\nA wrapper object for all OAuth information. Contains functions for authorizing\nand retrieving access tokens.",
-            "line": " lib/api/oauth.js:27"
+            "line": " lib/api/oauth.js:30"
         }
     ]
 }

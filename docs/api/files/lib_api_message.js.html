@@ -86,27 +86,22 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var app;
-var spredfast = require(&#x27;../spredfast.js&#x27;);
-var util = require(&#x27;./util.js&#x27;);
+var errors = require(&#x27;./errors.js&#x27;),
+    util = require(&#x27;./util.js&#x27;);
 
-var errors = require(&#x27;./errors.js&#x27;);
-var OptionError = errors.OptionError;
-var ContentError = errors.ContentError;
-
-var required = [&#x27;company&#x27;,&#x27;initiative&#x27;,&#x27;accounts&#x27;,&#x27;service&#x27;,&#x27;content&#x27;];
-
-var services = {
+var app, // eslint-disable-line one-var
+    ContentError = errors.ContentError,
+    required = [&#x27;company&#x27;, &#x27;initiative&#x27;, &#x27;accounts&#x27;, &#x27;service&#x27;, &#x27;content&#x27;],
+    Services = {
         FACEBOOK: &#x27;FACEBOOK&#x27;,
         LINKEDIN: &#x27;LINKEDIN&#x27;,
         TWITTER: &#x27;TWITTER&#x27;
     },
-    contentTypes = {
+    ContentTypes = {
         STATUS: &#x27;Status&#x27;,
         IMAGE: &#x27;ImageShare&#x27;,
         IMAGESHARE: &#x27;ImageShare&#x27;
     };
-
 
 /**
 * A class representing a Message that may be published by the Conversations API.
@@ -212,7 +207,6 @@ var services = {
 * OptionError: If one or more of the required options is not supplied.&lt;br/&gt;
 * ContentError: If one or more of the supplied options is of correct type,
 * but fails other specific criteria outlined in the above Validation Rules.
-* @TODO Allow additional 22 characters for image tweets
 * @TODO Validate labels
 */
 function Message(options) {
@@ -280,17 +274,19 @@ function Message(options) {
 * @return {Error|null} Any error that arises as a result
 * of invalid options, null otherwise.
 */
-var customValidation = function(options) {
-    var err, errors = [];
+function customValidation(options) {
+    var err, valid, invalidAccounts, isStatus, requiredContent;
 
     // Validate Types
 
     function validateTypes(obj, typeMap) {
-        var keys = Object.keys(typeMap);
-        for (var i = 0; i &lt; keys.length; i++) {
-            var propName = keys[i];
-            var desc = Object.getOwnPropertyDescriptor(obj, propName);
-            var value = desc ? desc.value : undefined;
+        var keys = Object.keys(typeMap),
+            propName, desc, value, i;
+
+        for (i = 0; i &lt; keys.length; i++) {
+            propName = keys[i];
+            desc = Object.getOwnPropertyDescriptor(obj, propName);
+            value = desc ? desc.value : undefined;
             if (err = util.checkType(value, propName, typeMap[propName])) {
                 return err;
             }
@@ -299,23 +295,23 @@ var customValidation = function(options) {
     }
 
     err = validateTypes(options, {
-        &#x27;company&#x27;: &#x27;object&#x27;,
-        &#x27;initiative&#x27;: &#x27;object&#x27;,
-        &#x27;service&#x27;: &#x27;string&#x27;,
-        &#x27;accounts&#x27;: &#x27;[object]&#x27;,
-        &#x27;content&#x27;: &#x27;object&#x27;,
-        &#x27;labels&#x27;: &#x27;undefined||[string]&#x27;,
-        &#x27;callbacks&#x27;: &#x27;undefined||[string]||[function]||[multi]&#x27;
+        company: &#x27;object&#x27;,
+        initiative: &#x27;object&#x27;,
+        service: &#x27;string&#x27;,
+        accounts: &#x27;[object]&#x27;,
+        content: &#x27;object&#x27;,
+        labels: &#x27;undefined||[string]&#x27;,
+        callbacks: &#x27;undefined||[string]||[function]||[multi]&#x27;
     });
     if (err) return err;
 
     err = validateTypes(options.content, {
-        &#x27;sfEntityType&#x27;: &#x27;string&#x27;,
-        &#x27;text&#x27;: &#x27;undefined||string&#x27;,
-        &#x27;imagePath&#x27;: &#x27;undefined||string&#x27;,
-        &#x27;caption&#x27;: &#x27;undefined||string&#x27;,
-        &#x27;temporaryImageUrl&#x27;: &#x27;undefined||string&#x27;,
-        &#x27;temporaryThumbnailUrl&#x27;: &#x27;undefined||string&#x27;
+        sfEntityType: &#x27;string&#x27;,
+        text: &#x27;undefined||string&#x27;,
+        imagePath: &#x27;undefined||string&#x27;,
+        caption: &#x27;undefined||string&#x27;,
+        temporaryImageUrl: &#x27;undefined||string&#x27;,
+        temporaryThumbnailUrl: &#x27;undefined||string&#x27;
     });
     if (err) return err;
 
@@ -333,12 +329,12 @@ var customValidation = function(options) {
         return new ContentError(&#x27;options.initiative must have an id property&#x27;);
     }
 
-    if (!util.validEnum(services, options.service)) {
-        var validServices = &#x27;spredfast.services.[&#x27; + Object.keys(services).join() + &#x27;]&#x27;;
-        return new ContentError(&#x27;options.service must be one of &#x27; + validServices);
+    if (!util.validEnum(Services, options.service)) {
+        valid = &#x27;spredfast.Services.[&#x27; + Object.keys(Services).join() + &#x27;]&#x27;;
+        return new ContentError(&#x27;options.service must be one of &#x27; + valid);
     }
 
-    var invalidAccounts = options.accounts.filter(function(account) {
+    invalidAccounts = options.accounts.filter(function(account) {
         return account.service !== options.service;
     });
     if (invalidAccounts.length) {
@@ -346,22 +342,28 @@ var customValidation = function(options) {
             + &#x27;service type to publish to &#x27; + options.service);
     }
 
-    if (!util.validEnum(contentTypes, options.content.sfEntityType)) {
-        var validContentTypes = &#x27;spredfast.contentTypes.[&#x27; + Object.keys(contentTypes).join() + &#x27;]&#x27;;
-        return new ContentError(&#x27;options.content.sfEntityType must be one of &#x27; + validContentTypes);
+    if (!util.validEnum(ContentTypes, options.content.sfEntityType)) {
+        valid = &#x27;spredfast.ContentTypes.[&#x27; + Object.keys(ContentTypes).join() + &#x27;]&#x27;;
+        return new ContentError(&#x27;options.content.sfEntityType must be one of &#x27; + valid);
     }
 
-    var isStatus = options.content.sfEntityType === contentTypes.STATUS;
-    var requiredContent = [&#x27;sfEntityType&#x27;, isStatus ? &#x27;text&#x27; : &#x27;imagePath&#x27;];
+    isStatus = options.content.sfEntityType === ContentTypes.STATUS;
+    requiredContent = [&#x27;sfEntityType&#x27;, isStatus ? &#x27;text&#x27; : &#x27;imagePath&#x27;];
     err = util.validateOptions(options.content, requiredContent);
     if (err) return err;
 
     if (isStatus) {
-        if (options.service === services.TWITTER &amp;&amp; options.content.text.length &gt; 140) {
+        if (options.service === Services.TWITTER &amp;&amp; options.content.text.length &gt; 140) {
             return new ContentError(&#x27;Tweet text must be less than 140 characters&#x27;);
         }
-    } else if (util.fileSizeInMegaBytes(options.content.imagePath) &gt;= 1000) {
-        return new ContentError(options.content.imagePath + &#x27; must be smaller than 1 GB&#x27;);
+    } else {
+        if (util.fileSizeInMegaBytes(options.content.imagePath) &gt;= 1000) {
+            return new ContentError(options.content.imagePath + &#x27; must be smaller than 1 GB&#x27;);
+        }
+        if (options.service === Services.TWITTER &amp;&amp; options.content.caption.length &gt; 117) {
+            return new ContentError(&#x27;Tweet text must be less than 117 characters &#x27;
+                + &#x27;when including an image&#x27;);
+        }
     }
 
     return null;
@@ -377,10 +379,13 @@ var customValidation = function(options) {
 * @param {Function|String} callback Either a String URI pointing to a separate
 * callback endpoint, or a function to be called upon appropriate notification from
 * the Spredfast API.
-* @return {String} The URI that the Spredfast API should notify to execute the callback function.
+* @return {String} The URI that the Spredfast API should notify to execute the
+* callback function.
 * @TODO Dynamically configure URI
 */
-var setupCallback = function(callback) {
+function setupCallback(callback) {
+    var uri;
+
     if (typeof callback === &#x27;string&#x27;) {
         return callback;
     }
@@ -396,13 +401,13 @@ var setupCallback = function(callback) {
         console.log(&#x27;Listening on port 3001&#x27;);
     }
     // var uri = &#x27;https://www.mydomain.com/callback?id=&#x27; + app.routeFns.length;
-    var uri = &#x27;http://callbacktest1.jloehr.ultrahook.com?id=&#x27; + app.routeFns.length;
+    uri = &#x27;http://callbacktest1.jloehr.ultrahook.com?id=&#x27; + app.routeFns.length;
     app.routeFns.push(callback);
     return uri;
 }
 
-Message.services = Object.freeze ? Object.freeze(services) : services;
-Message.contentTypes = Object.freeze ? Object.freeze(contentTypes) : contentTypes;
+Message.Services = Object.freeze ? Object.freeze(Services) : Services;
+Message.ContentTypes = Object.freeze ? Object.freeze(ContentTypes) : ContentTypes;
 module.exports = Message;
 
     </pre>
