@@ -77,7 +77,7 @@ describe('A Message', function() {
         expect(self.fn).not.toThrowError(ContentError, /options.initiative/);
 
         expect(self.fn).toThrowError(ContentError, /options\.service/);
-        self.options.service = spredfast.services.FACEBOOK;
+        self.options.service = spredfast.Services.FACEBOOK;
         expect(self.fn).not.toThrowError(ContentError, /options\.service/);
 
         expect(self.fn).toThrowError(ContentError, /target accounts/);
@@ -93,7 +93,7 @@ describe('A Message', function() {
         expect(self.fn).toThrowError(ContentError, /options\.content\.sfEntityType/);
         self.options.content.sfEntityType = '';
         expect(self.fn).toThrowError(ContentError, /options\.content\.sfEntityType/);
-        self.options.content.sfEntityType = spredfast.contentTypes.STATUS;
+        self.options.content.sfEntityType = spredfast.ContentTypes.STATUS;
         expect(self.fn).not.toThrowError(ContentError, /options\.content\.sfEntityType/);
 
         expect(self.fn).toThrowError(OptionError, /text/);
@@ -102,9 +102,9 @@ describe('A Message', function() {
         expect(self.fn).not.toThrow();
 
         // Tweet Status type
-        self.options.service = spredfast.services.TWITTER;
+        self.options.service = spredfast.Services.TWITTER;
         self.options.accounts.forEach(function(account) {
-            account.service = spredfast.services.TWITTER;
+            account.service = spredfast.Services.TWITTER;
         });
         self.options.content.text = 'This tweet is over 140 characters.';
         for (var i = self.options.content.text.length; i <= 140; i++) {
@@ -116,7 +116,7 @@ describe('A Message', function() {
         expect(self.fn).not.toThrow();
 
         // ImageShare type
-        self.options.content.sfEntityType = spredfast.contentTypes.IMAGE;
+        self.options.content.sfEntityType = spredfast.ContentTypes.IMAGE;
         self.options.content.text = undefined;
         expect(self.fn).toThrowError(OptionError, /imagePath/);
         self.options.content.imagePath = '/Users/jloehr/Downloads/image.jpg';

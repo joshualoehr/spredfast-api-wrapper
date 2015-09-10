@@ -44,9 +44,9 @@ function doStuff(oauth) {
         company: null,
         initiative: null,
         accounts: [],
-        service: spredfast.services.TWITTER,
+        service: spredfast.Services.TWITTER,
         content: {
-            sfEntityType: spredfast.contentTypes.STATUS,
+            sfEntityType: spredfast.ContentTypes.STATUS,
             text: 'Status text here'
         },
         // content: {
