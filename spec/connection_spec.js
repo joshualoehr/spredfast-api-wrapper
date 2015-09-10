@@ -182,11 +182,11 @@ describe('A Connection', function() {
                     "description": null
                 },
                 content: {
-                    sfEntityType: spredfast.contentTypes.STATUS,
+                    sfEntityType: spredfast.ContentTypes.STATUS,
                     text: 'Here is my tweet text'
                 },
                 labels: [ 'foo', 'bar' ],
-                service: spredfast.services.TWITTER,
+                service: spredfast.Services.TWITTER,
                 accounts: [
                     {
                         "sfEntityType": "Account",
@@ -223,8 +223,8 @@ describe('A Connection', function() {
         it('validates that the current user can publish the given message', function() {
             expect(self.fn).toThrowError('One or more target '
                 + 'accounts are of incorrect service type to publish to TWITTER');
-            self.options.accounts[0].service = spredfast.services.TWITTER;
-            self.options.accounts[1].service = spredfast.services.TWITTER;
+            self.options.accounts[0].service = spredfast.Services.TWITTER;
+            self.options.accounts[1].service = spredfast.Services.TWITTER;
             expect(self.fn).not.toThrow();
 
             self.fn(function() {
@@ -237,8 +237,8 @@ describe('A Connection', function() {
         });
 
         it('should publish successfully', function() {
-            self.options.accounts[0].service = spredfast.services.TWITTER;
-            self.options.accounts[1].service = spredfast.services.TWITTER;
+            self.options.accounts[0].service = spredfast.Services.TWITTER;
+            self.options.accounts[1].service = spredfast.Services.TWITTER;
             self.fn(function() {
                 expect(self.err).toBe(null);
                 expect(self.res).toEqual({

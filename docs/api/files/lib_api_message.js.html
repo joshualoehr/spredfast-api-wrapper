@@ -128,6 +128,8 @@ var services = {
 * @class Message
 * @constructor
 * @param {Object} options Options to configure the Message.
+* @param {Object} company The company under which this Message will be published.
+* @param {Object} initiative The initiative under which this Message will be published.
 * @param {String} options.service The Service type enum representing the medium
 * by which this message will be published (e.g. &#x27;TWITTER&#x27;, &#x27;FACEBOOK&#x27;, etc.).
 * @param {number[]} options.accounts An array of accounts with which to publish
@@ -162,8 +164,35 @@ var services = {
 *     fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);
 *
 *     var msg = new spredfast.Message({
+*         company: {
+*             &quot;sfEntityType&quot;: &quot;AvailableCompany&quot;,
+*             &quot;id&quot;: &quot;2&quot;,
+*             &quot;name&quot;: &quot;Planet Express&quot;,
+*             &quot;environment&quot;: &quot;development&quot;
+*         },
+*         initiative: {
+*             &quot;sfEntityType&quot;: &quot;Initiative&quot;,
+*             &quot;id&quot;: 2,
+*             &quot;name&quot;: &quot;Marketing&quot;,
+*             &quot;description&quot;: null
+*         },
+*         accounts: [
+*             {
+*                 &quot;sfEntityType&quot;: &quot;Account&quot;,
+*                 &quot;id&quot;: 42,
+*                 &quot;service&quot;: &quot;FACEBOOK&quot;,
+*                 &quot;name&quot;: &quot;Express_ATX&quot;,
+*                 &quot;accountType&quot;: &quot;USER&quot;
+*             },
+*             {
+*                 &quot;sfEntityType&quot;: &quot;Account&quot;,
+*                 &quot;id&quot;: 2,
+*                 &quot;service&quot;: &quot;FACEBOOK&quot;,
+*                 &quot;name&quot;: &quot;Page: Planet Express&quot;,
+*                 &quot;accountType&quot;: &quot;PAGE&quot;
+*             }
+*         ],
 *         service: &#x27;FACEBOOK&#x27;,
-*         accounts: [&#x27;42&#x27;],
 *         content: {
 *             sfEntityType: &#x27;Status&#x27;,
 *             text: &#x27;Here is my status text&#x27;
@@ -183,7 +212,8 @@ var services = {
 * OptionError: If one or more of the required options is not supplied.&lt;br/&gt;
 * ContentError: If one or more of the supplied options is of correct type,
 * but fails other specific criteria outlined in the above Validation Rules.
-* @TODO Image messages
+* @TODO Allow additional 22 characters for image tweets
+* @TODO Validate labels
 */
 function Message(options) {
     if (err = util.validateOptions(options, required, customValidation)) {
@@ -365,6 +395,7 @@ var setupCallback = function(callback) {
         app.listen(3001);
         console.log(&#x27;Listening on port 3001&#x27;);
     }
+    // var uri = &#x27;https://www.mydomain.com/callback?id=&#x27; + app.routeFns.length;
     var uri = &#x27;http://callbacktest1.jloehr.ultrahook.com?id=&#x27; + app.routeFns.length;
     app.routeFns.push(callback);
     return uri;

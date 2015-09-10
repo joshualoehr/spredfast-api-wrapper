@@ -240,17 +240,28 @@
                             "optional": true
                         }
                     ]
+                },
+                {
+                    "name": "company",
+                    "description": "The company under which this Message will be published.",
+                    "type": "Object"
+                },
+                {
+                    "name": "initiative",
+                    "description": "The initiative under which this Message will be published.",
+                    "type": "Object"
                 }
             ],
             "example": [
-                "\n    var fiveMinsFromNow = new Date();\n    fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);\n\n    var msg = new spredfast.Message({\n        service: 'FACEBOOK',\n        accounts: ['42'],\n        content: {\n            sfEntityType: 'Status',\n            text: 'Here is my status text'\n        },\n        callbacks: [\n            function(req, res) {\n                console.log('callback');\n            },\n            'http://localhost:3002/callback',\n            'http://www.example.com/callback'\n        ],\n        date: fiveMinsFromNow.toISOString()\n    });"
+                "\n    var fiveMinsFromNow = new Date();\n    fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);\n\n    var msg = new spredfast.Message({\n        company: {\n            \"sfEntityType\": \"AvailableCompany\",\n            \"id\": \"2\",\n            \"name\": \"Planet Express\",\n            \"environment\": \"development\"\n        },\n        initiative: {\n            \"sfEntityType\": \"Initiative\",\n            \"id\": 2,\n            \"name\": \"Marketing\",\n            \"description\": null\n        },\n        accounts: [\n            {\n                \"sfEntityType\": \"Account\",\n                \"id\": 42,\n                \"service\": \"FACEBOOK\",\n                \"name\": \"Express_ATX\",\n                \"accountType\": \"USER\"\n            },\n            {\n                \"sfEntityType\": \"Account\",\n                \"id\": 2,\n                \"service\": \"FACEBOOK\",\n                \"name\": \"Page: Planet Express\",\n                \"accountType\": \"PAGE\"\n            }\n        ],\n        service: 'FACEBOOK',\n        content: {\n            sfEntityType: 'Status',\n            text: 'Here is my status text'\n        },\n        callbacks: [\n            function(req, res) {\n                console.log('callback');\n            },\n            'http://localhost:3002/callback',\n            'http://www.example.com/callback'\n        ],\n        date: fiveMinsFromNow.toISOString()\n    });"
             ],
             "throws": {
                 "description": "ReferenceError: If one or more of the required options is undefined.<br/>\nTypeError: If one or more of the supplied options is of incorrect type.<br/>\nOptionError: If one or more of the required options is not supplied.<br/>\nContentError: If one or more of the supplied options is of correct type,\nbut fails other specific criteria outlined in the above Validation Rules.",
                 "type": "ReferenceError|TypeError|OptionError|ContentError"
             },
             "todo": [
-                "Image messages"
+                "Allow additional 22 characters for image tweets",
+                "Validate labels"
             ]
         },
         "OAuth": {
@@ -578,7 +589,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 114,
+            "line": 144,
             "description": "Generates the raw JSON to send to the API server.",
             "itemtype": "method",
             "name": "build",
@@ -590,7 +601,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 139,
+            "line": 169,
             "description": "If the message is of type ImageShare, this function will provide the\nraw image data needed to send over HTTP.",
             "itemtype": "method",
             "name": "imageData",
@@ -602,7 +613,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 155,
+            "line": 185,
             "description": "Custom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
             "type": "Function",
             "access": "private",
@@ -621,7 +632,7 @@
         },
         {
             "file": "lib/api/message.js",
-            "line": 252,
+            "line": 282,
             "description": "Dynamically sets up an ExpressJS server with a map of callback functions that\nwill be called if and when the Spredfast API server sends an HTTP request\nto this callback server with a valid function ID.",
             "itemtype": "method",
             "name": "setupCallback",
@@ -985,7 +996,7 @@
         },
         {
             "message": "Missing item type\nCustom validation function for Message options. Will be passed to\nutil.validateOptions as a set of additonal criteria.",
-            "line": " lib/api/message.js:155"
+            "line": " lib/api/message.js:185"
         },
         {
             "message": "Missing item type\nBuilds the proper authorization URL based on which flow is being used.",

@@ -122,6 +122,12 @@ new labels requires the caller's UserPrivilege to include canCreateLabels.
                 <li class="arg">
                         <code>options</code>
                 </li>
+                <li class="arg">
+                        <code>company</code>
+                </li>
+                <li class="arg">
+                        <code>initiative</code>
+                </li>
             </ul><span class="paren">)</span>
         </div>
 
@@ -280,6 +286,28 @@ of successful publication from the API Server.</p>
                             </li>
                         </ul>
                 </li>
+                <li class="param">
+                        <code class="param-name">company</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+
+
+                    <div class="param-description">
+                        <p>The company under which this Message will be published.</p>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">initiative</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+
+
+                    <div class="param-description">
+                        <p>The initiative under which this Message will be published.</p>
+
+                    </div>
+
+                </li>
             </ul>
         </div>
 
@@ -306,8 +334,35 @@ but fails other specific criteria outlined in the above Validation Rules.</p>
 fiveMinsFromNow.setMinutes(new Date().getMinutes() + 5);
 
 var msg = new spredfast.Message({
+    company: {
+        "sfEntityType": "AvailableCompany",
+        "id": "2",
+        "name": "Planet Express",
+        "environment": "development"
+    },
+    initiative: {
+        "sfEntityType": "Initiative",
+        "id": 2,
+        "name": "Marketing",
+        "description": null
+    },
+    accounts: [
+        {
+            "sfEntityType": "Account",
+            "id": 42,
+            "service": "FACEBOOK",
+            "name": "Express_ATX",
+            "accountType": "USER"
+        },
+        {
+            "sfEntityType": "Account",
+            "id": 2,
+            "service": "FACEBOOK",
+            "name": "Page: Planet Express",
+            "accountType": "PAGE"
+        }
+    ],
     service: 'FACEBOOK',
-    accounts: ['42'],
     content: {
         sfEntityType: 'Status',
         text: 'Here is my status text'
@@ -382,7 +437,7 @@ var msg = new spredfast.Message({
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_message.js.html#l114"><code>lib&#x2F;api&#x2F;message.js:114</code></a>
+        <a href="../files/lib_api_message.js.html#l144"><code>lib&#x2F;api&#x2F;message.js:144</code></a>
         </p>
 
 
@@ -425,7 +480,7 @@ var msg = new spredfast.Message({
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_message.js.html#l139"><code>lib&#x2F;api&#x2F;message.js:139</code></a>
+        <a href="../files/lib_api_message.js.html#l169"><code>lib&#x2F;api&#x2F;message.js:169</code></a>
         </p>
 
 
@@ -476,7 +531,7 @@ raw image data needed to send over HTTP.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/lib_api_message.js.html#l252"><code>lib&#x2F;api&#x2F;message.js:252</code></a>
+        <a href="../files/lib_api_message.js.html#l282"><code>lib&#x2F;api&#x2F;message.js:282</code></a>
         </p>
 
 
